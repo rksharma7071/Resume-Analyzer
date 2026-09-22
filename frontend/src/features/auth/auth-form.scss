@@ -1,0 +1,110 @@
+@use '../../styles/variables' as *;
+
+
+main {
+  font-family: $font-stack;
+  min-height: 100vh;
+  background: linear-gradient(135deg, $bg-gradient-start, $bg-gradient-end);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.form-container {
+  width: 100%;
+  max-width: 420px;
+  background: $white;
+  padding: 2rem;
+  border-radius: 0.8rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.2s ease;
+
+  h1 {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: $text-color;
+    margin-bottom: 1.2rem;
+    text-align: center;
+    letter-spacing: -0.025em;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  p {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: $label-color;
+
+    a {
+      color: $primary-color;
+      font-weight: 500;
+      text-decoration: none;
+      transition: color 0.2s ease, text-decoration 0.2s ease;
+
+      &:hover {
+        color: $primary-hover;
+        text-decoration: underline;
+      }
+
+      &:focus-visible {
+        outline: 2px solid $primary-color;
+        outline-offset: 2px;
+        border-radius: 2px;
+      }
+    }
+  }
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: $label-color;
+    letter-spacing: 0.01em;
+  }
+
+  input {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    font-family: inherit;
+    color: $text-color;
+    background: #f9fafb;
+    border: 1.5px solid $border-color;
+    border-radius: 0.5rem;
+    transition: border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      background 0.2s ease;
+    outline: none;
+
+    &::placeholder {
+      color: #9ca3af;
+    }
+
+    &:focus {
+      border-color: $input-focus;
+      background: $white;
+      box-shadow: 0 0 0 3px rgba($input-focus, 0.15);
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .form-container {
+    padding: 1.5rem;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+}

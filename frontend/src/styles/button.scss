@@ -1,0 +1,48 @@
+@use './variables' as *;
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  line-height: 1.5;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.2s ease,
+    transform 0.1s ease,
+    box-shadow 0.2s ease;
+  user-select: none;
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+  }
+}
+
+.button-primary {
+  width: 100%;
+  color: $white;
+  background: linear-gradient(135deg, $primary-color, lighten($primary-color, 5%));
+  box-shadow: 0 4px 6px -1px rgba($primary-color, 0.3),
+    0 2px 4px -1px rgba($primary-color, 0.2);
+
+  &:hover {
+    background: linear-gradient(135deg, $primary-hover, $primary-color);
+    box-shadow: 0 10px 15px -3px rgba($primary-color, 0.3),
+      0 4px 6px -2px rgba($primary-color, 0.2);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 4px 6px -1px rgba($primary-color, 0.2);
+  }
+}
