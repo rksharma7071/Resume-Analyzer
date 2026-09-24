@@ -1,4 +1,5 @@
 @use './variables' as *;
+@use "sass:color";
 
 .button {
   display: inline-flex;
@@ -30,19 +31,31 @@
 .button-primary {
   width: 100%;
   color: $white;
-  background: linear-gradient(135deg, $primary-color, lighten($primary-color, 5%));
-  box-shadow: 0 4px 6px -1px rgba($primary-color, 0.3),
+
+  background: linear-gradient(135deg,
+      $primary-color,
+      color.adjust($primary-color, $lightness: 5%));
+
+  box-shadow:
+    0 4px 6px -1px rgba($primary-color, 0.3),
     0 2px 4px -1px rgba($primary-color, 0.2);
 
   &:hover {
-    background: linear-gradient(135deg, $primary-hover, $primary-color);
-    box-shadow: 0 10px 15px -3px rgba($primary-color, 0.3),
+    background: linear-gradient(135deg,
+        $primary-hover,
+        $primary-color );
+
+    box-shadow:
+      0 10px 15px -3px rgba($primary-color, 0.3),
       0 4px 6px -2px rgba($primary-color, 0.2);
+
     transform: translateY(-1px);
   }
 
   &:active {
     transform: translateY(0) scale(0.98);
-    box-shadow: 0 4px 6px -1px rgba($primary-color, 0.2);
+
+    box-shadow:
+      0 4px 6px -1px rgba($primary-color, 0.2);
   }
 }

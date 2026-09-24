@@ -1,11 +1,24 @@
-import React from 'react'
-import { Link } from "react-router";
+import React, { useState } from 'react'
+import { Link, useNavigate } from "react-router";
+import { useAuth } from '../hooks/useAuth.jsx';
 
 const Register = () => {
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const { loading, handleRegister } = useAuth();
+  const navigate = useNavigate();
 
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await handleRegister({ name, email, password });
+    navigate("/");
+  }
+
+  if (loading) {
+    return (<main><h1>Loading...</h1></main>);
   }
 
   return (
@@ -15,15 +28,15 @@ const Register = () => {
         <form onSubmit={handleSubmit}>
           <div className="input-group">
             <label htmlFor="name">Name</label>
-            <input type="text" name="name" id="name" />
+            <input type="text" onChange={(e) => { setName(e.target.value) }} name="name" id="name" />
           </div>
           <div className="input-group">
             <label htmlFor="email">Email</label>
-            <input type="email" name="email" id="email" />
+            <input type="email" onChange={(e) => { setEmail(e.target.value) }} name="email" id="email" />
           </div>
           <div className="input-group">
             <label htmlFor="password">Password</label>
-            <input type="password" name="password" id="password" />
+            <input type="password" onChange={(e) => { setPassword(e.target.value) }} name="password" id="password" />
           </div>
           <button className='button button-primary'>Register</button>
         </form>
