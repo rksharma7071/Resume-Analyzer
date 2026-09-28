@@ -3,72 +3,107 @@ import { GoogleGenAI } from "@google/genai";
 import * as z from "zod";
 
 const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY
+  apiKey: process.env.GEMINI_API_KEY,
 });
 
 const interviewReportSchema = z.object({
-  matchScore: z.number().min(0).max(100).describe("Match score between the candidate and the job description."),
+  matchScore: z
+    .number()
+    .min(0)
+    .max(100)
+    .describe("Match score between the candidate and the job description."),
+
   technicalQuestions: z.array(
     z.object({
-      question: z.string().describe("Technical question that can be asked in the interview."),
-      intention: z.string().describe("What the interviewer wants to evaluate."),
-      answer: z.string().describe("How the candidate should answer and what points they should cover.")
+      question: z.string(),
+      intention: z.string(),
+      answer: z.string(),
     })
   ),
 
   behavioralQuestions: z.array(
     z.object({
-      question: z.string().describe("Behavioral question that can be asked in the interview."),
-      intention: z.string().describe("What the interviewer wants to evaluate."),
-      answer: z.string().describe("How the candidate should answer and what points they should cover.")
+      question: z.string(),
+      intention: z.string(),
+      answer: z.string(),
     })
   ),
 
   skillGaps: z.array(
     z.object({
-      skill: z.string().describe("Skill that the candidate is lacking."),
-      severity: z.enum(["low", "medium", "high"]).describe("Severity of the skill gap.")
+      skill: z.string(),
+      severity: z.enum(["low", "medium", "high"]),
     })
   ),
 
   preparationPlan: z.array(
     z.object({
-      day: z.string().describe("Date for the preparation task, e.g. 2026-09-25."),
-      focus: z.string().describe("Main focus for this day."),
-      tasks: z.array(z.string()).describe("Tasks the candidate should complete.")
+      day: z.string(),
+      focus: z.string(),
+      tasks: z.array(z.string()),
     })
-  )
+  ),
 });
 
 export const generateInterviewReport = async ({ resume, selfDescription, jobDescription }) => {
+  if (!resume || !jobDescription) {
+    throw new Error("Resume and job description are required");
+  }
+
   const prompt = `
-Generate an interview preparation report for the candidate.
-Analyze the candidate's resume, self-description, and the job description.
+  Generate an interview preparation report for the candidate.
 
-Resume:${resume}
+  Resume:
+  ${resume}
 
-Self Description:${selfDescription}
+  Self Description:
+  ${selfDescription || "Not provided"}
 
-Job Description:${jobDescription}
+  Job Description:
+  ${jobDescription}
 
-Generate:
-1. Match score from 0 to 100.
-2. Technical interview questions.
-3. Behavioral interview questions.
-4. Skill gaps with severity.
-5. A preparation plan.
-`;
+  Generate:
+  1. Match score from 0 to 100.
+  2. Technical interview questions.
+  3. Behavioral interview questions.
+  4. Skill gaps with severity.
+  5. A preparation plan.
+  `;
 
-  const response = await ai.models.generateContent({
-    model: "gemini-3.6-flash",
-    contents: prompt,
-    config: {
-      responseMimeType: "application/json",
-      responseJsonSchema: z.toJSONSchema(interviewReportSchema)
-    }
-  });
+  let response;
+  try {
+    response = await ai.interactions.create({
+      model: "gemini-3.8-flash",
+      input: prompt,
+      response_format: {
+        type: "text",
+        mime_type: "application/json",
+        schema: z.toJSONSchema(interviewReportSchema),
+      },
+    });
+  } catch (error) {
+    console.error("Gemini API error:", error?.status, error?.message);
+    throw error;
+  }
 
-  const report = JSON.parse(response.text);
+  const text = response.output_text;
+  if (!text) {
+    throw new Error("Gemini returned an empty response");
+  }
 
-  return report;
+  let report;
+  try {
+    report = JSON.parse(text);
+  } catch (err) {
+    console.error("Gemini returned invalid JSON:", text.slice(0, 500));
+    throw new Error("AI returned malformed JSON");
+  }
+
+  const result = interviewReportSchema.safeParse(report);
+  if (!result.success) {
+    console.error("Schema validation failed:", result.error.format());
+    throw new Error("AI response did not match the expected schema");
+  }
+
+  return result.data;
 };

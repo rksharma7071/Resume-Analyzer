@@ -1,5 +1,6 @@
 import express from "express";
 import authRouter from './routes/auth.route.js'
+import interviewRouter from "./routes/interviewReport.route.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { generateInterviewReport } from "./services/ai.service.js";
@@ -15,5 +16,6 @@ app.use(cors({
 }))
 
 app.use("/api/auth", authRouter);
+app.use("/api/interviewReport", interviewRouter);
 
 export default app
