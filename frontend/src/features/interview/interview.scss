@@ -1,15 +1,55 @@
 @use '../../styles/variables' as *;
 @use "sass:color";
 
-/* ═══════════════════════════════════════════
-   Page shell
-   ═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════
+   Local theme extensions (built on top of shared vars)
+   ═══════════════════════════════════════════════════ */
 
-.interview-page {
+$surface: $white;
+$surface-subtle: #f9fafb;
+$surface-hover: color.adjust($bg-gradient-start, $lightness: 3%);
+
+$text-strong: $text-color;
+$text-body: $label-color;
+$text-muted: #6b7280;
+$text-dim: #9ca3af;
+
+$hairline: rgba($border-color, 0.6);
+$hairline-strong: $border-color;
+
+$accent: $primary-color;
+$accent-soft: rgba($primary-color, 0.08);
+$accent-soft-2: rgba($primary-color, 0.14);
+$accent-ring: rgba($primary-color, 0.2);
+
+$severity-high: #dc2626;
+$severity-medium: #d97706;
+$severity-low: #16a34a;
+
+$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+$shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.06),
+  0 2px 4px -1px rgba(0, 0, 0, 0.03);
+$shadow-lg: 0 10px 20px -8px rgba(0, 0, 0, 0.08),
+  0 4px 8px -4px rgba(0, 0, 0, 0.04);
+
+$radius-sm: 0.5rem;
+$radius-md: 0.75rem;
+$radius-lg: 1rem;
+
+/* ═══════════════════════════════════════════════════
+   Shell
+   ═══════════════════════════════════════════════════ */
+
+.interview-dashboard {
+  display: grid;
+  grid-template-columns: 240px 1fr 300px;
   min-height: 100vh;
   background: linear-gradient(135deg, $bg-gradient-start, $bg-gradient-end);
-  padding: 3rem 1rem;
+  color: $text-body;
   font-family: $font-stack;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 
   *,
   *::before,
@@ -18,362 +58,883 @@
   }
 }
 
-.interview-container {
-  max-width: 1200px;
-  margin: 0 auto;
+/* ═══════════════════════════════════════════════════
+   Left sidebar
+   ═══════════════════════════════════════════════════ */
+
+.dashboard-sidebar {
+  padding: 2rem 1rem;
+  background: rgba($surface, 0.6);
+  backdrop-filter: blur(8px);
+  border-right: 1px solid $hairline;
+}
+
+.sidebar-label {
+  margin: 0 0 0.875rem 0.75rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: $text-dim;
+}
+
+.sidebar-nav {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 0.25rem;
 }
 
-/* ═══════════════════════════════════════════
-   Header
-   ═══════════════════════════════════════════ */
-
-.page-header {
-  text-align: center;
-  max-width: 720px;
-  margin: 0 auto;
-
-  .page-title {
-    font-size: 2.25rem;
-    font-weight: 700;
-    color: $text-color;
-    letter-spacing: -0.025em;
-    margin-bottom: 0.5rem;
-    line-height: 1.15;
-  }
-
-  .page-subtitle {
-    font-size: 1rem;
-    color: $label-color;
-    line-height: 1.6;
-  }
-}
-
-/* ═══════════════════════════════════════════
-   Grid
-   ═══════════════════════════════════════════ */
-
-.form-grid {
-  display: grid;
-  grid-template-columns: 1.1fr 1fr;
-  gap: 1.5rem;
-  align-items: stretch;
-}
-
-/* ═══════════════════════════════════════════
-   Card
-   ═══════════════════════════════════════════ */
-
-.card {
-  background: $white;
-  border-radius: 1rem;
-  padding: 1.75rem;
-  border: 1px solid rgba($border-color, 0.5);
-  box-shadow:
-    0 4px 12px -2px rgba(0, 0, 0, 0.06),
-    0 2px 4px -1px rgba(0, 0, 0, 0.03);
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  min-height: 520px;
-}
-
-.card-header {
+.nav-item {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 0.875rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid rgba($border-color, 0.4);
+  gap: 0.625rem;
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  font-family: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: left;
+  color: $text-muted;
+  background: transparent;
+  border: none;
+  border-radius: $radius-sm;
+  cursor: pointer;
+  transition:
+    color 0.18s ease,
+    background 0.18s ease,
+    transform 0.18s ease;
 
-  .card-icon {
-    width: 42px;
-    height: 42px;
-    border-radius: 0.625rem;
-    background: linear-gradient(
-      135deg,
-      rgba($primary-color, 0.12),
-      rgba($primary-color, 0.05)
-    );
-    color: $primary-color;
-    display: flex;
+  .nav-icon {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    color: inherit;
   }
 
-  h2 {
-    font-size: 1.0625rem;
+  &:hover {
+    color: $text-strong;
+    background: rgba($primary-color, 0.05);
+  }
+
+  &.is-active {
+    color: $accent;
+    background: $accent-soft;
     font-weight: 600;
-    color: $text-color;
-    line-height: 1.3;
-    margin: 0;
-  }
 
-  .card-subtitle {
-    font-size: 0.8125rem;
-    color: $label-color;
-    margin-top: 0.125rem;
-    line-height: 1.4;
+    &::before {
+      content: "";
+      position: absolute;
+      left: -1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3px;
+      height: 60%;
+      background: $accent;
+      border-radius: 0 3px 3px 0;
+    }
   }
 }
 
-/* ═══════════════════════════════════════════
-   Field
-   ═══════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════
+   Main content
+   ═══════════════════════════════════════════════════ */
 
-.field {
+.dashboard-main {
+  padding: 2rem 2.25rem;
+  overflow-y: auto;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  // flex: 1;
-  min-height: 0;
-
-  label {
-    font-size: 0.8125rem;
-    font-weight: 600;
-    color: $label-color;
-    letter-spacing: 0.01em;
-  }
-
-  textarea {
-    width: 100%;
-    flex: 1;
-    min-height: 140px;
-    padding: 0.75rem 1rem;
-    font-size: 0.9375rem;
-    line-height: 1.55;
-    font-family: inherit;
-    color: $text-color;
-    background: #f9fafb;
-    border: 1.5px solid $border-color;
-    border-radius: 0.625rem;
-    resize: vertical;
-    outline: none;
-    transition:
-      border-color 0.2s ease,
-      box-shadow 0.2s ease,
-      background 0.2s ease;
-
-    &::placeholder {
-      color: #9ca3af;
-    }
-
-    &:focus {
-      border-color: $input-focus;
-      background: $white;
-      box-shadow: 0 0 0 3px rgba($input-focus, 0.15);
-    }
-  }
+  justify-content: flex-start;
 }
 
-.field-hint {
+.main-header {
   display: flex;
-  justify-content: space-between;
-  gap: 0.5rem;
-  font-size: 0.75rem;
-  color: #9ca3af;
-  padding: 0 0.125rem;
+  align-items: center;
+  gap: 0.875rem;
+  margin-bottom: 1.5rem;
+}
 
-  .hint-right {
-    font-variant-numeric: tabular-nums;
-    flex-shrink: 0;
+.main-title {
+  margin: 0;
+  font-size: 1.375rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  color: $text-strong;
+}
+
+.count-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: $accent;
+  background: $accent-soft;
+  border: 1px solid $accent-soft-2;
+  border-radius: 999px;
+}
+
+/* ═══════════════════════════════════════════════════
+   Question accordion
+   ═══════════════════════════════════════════════════ */
+
+.question-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.question-card {
+  background: $surface;
+  border: 1px solid $hairline;
+  border-radius: $radius-md;
+  box-shadow: $shadow-sm;
+  overflow: hidden;
+  transition:
+    box-shadow 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+
+  &:hover {
+    border-color: rgba($primary-color, 0.25);
+    box-shadow: $shadow-md;
+    transform: translateY(-1px);
+  }
+
+  &.is-open {
+    border-color: rgba($primary-color, 0.35);
+    box-shadow: $shadow-md;
+
+    &:hover {
+      transform: none;
+    }
   }
 }
 
-/* ═══════════════════════════════════════════
-   File drop zone
-   ═══════════════════════════════════════════ */
+.question-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 1rem 1.125rem;
+  font-family: inherit;
+  font-size: 0.9375rem;
+  text-align: left;
+  color: inherit;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
 
-.file-drop {
+.q-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: 36px;
+  height: 28px;
+  padding: 0 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: $accent;
+  background: $accent-soft;
+  border-radius: $radius-sm;
+  letter-spacing: 0.02em;
+  transition: background 0.18s ease, color 0.18s ease;
+}
+
+.question-card.is-open .q-badge {
+  color: $white;
+  background: linear-gradient(135deg,
+      $primary-color,
+      color.adjust($primary-color, $lightness: 5%));
+}
+
+.q-text {
+  flex: 1;
+  min-width: 0;
+  color: $text-strong;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: $text-dim;
+  transition: transform 0.22s ease, color 0.15s ease;
+}
+
+.question-card.is-open .chevron {
+  transform: rotate(180deg);
+  color: $accent;
+}
+
+.question-body {
+  padding: 0 1.125rem 1.125rem 4.25rem;
+  color: $text-muted;
+  font-size: 0.875rem;
+  line-height: 1.65;
+  animation: slideDown 0.22s ease;
+
+  p {
+    margin: 0;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   Right aside
+   ═══════════════════════════════════════════════════ */
+
+.dashboard-aside {
+  padding: 2rem 1.5rem;
+  background: rgba($surface, 0.6);
+  backdrop-filter: blur(8px);
+  border-left: 1px solid $hairline;
+}
+
+.aside-label {
+  margin: 0 0 1rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: $text-dim;
+}
+
+/* ─── Match score ─── */
+
+.match-section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 0.375rem;
-  padding: 1.5rem 1rem;
+  padding-bottom: 1.75rem;
+  margin-bottom: 1.75rem;
+  border-bottom: 1px solid $hairline;
+
+  .aside-label {
+    align-self: flex-start;
+    margin-bottom: 1.25rem;
+  }
+}
+
+.score-ring {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  margin-bottom: 1rem;
+
+  svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+  }
+
+  .ring-bg {
+    fill: none;
+    stroke: rgba($primary-color, 0.08);
+    stroke-width: 8;
+  }
+
+  .ring-fg {
+    fill: none;
+    stroke: $severity-low;
+    stroke-width: 8;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: drop-shadow(0 2px 6px rgba($severity-low, 0.35));
+  }
+
+  .score-value {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $text-strong;
+    pointer-events: none;
+  }
+
+  .score-num {
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: -0.035em;
+    line-height: 1;
+    color: $text-strong;
+  }
+
+  .score-pct {
+    margin-left: 0.125rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: $text-muted;
+  }
+}
+
+.score-caption {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: $severity-low;
   text-align: center;
-  background: #f9fafb;
-  border: 2px dashed $border-color;
-  border-radius: 0.75rem;
-  cursor: pointer;
+}
+
+/* ─── Skill gaps ─── */
+
+.skill-gaps {
+  .gap-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .gap-item {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.45;
+    border-radius: $radius-sm;
+    border: 1px solid transparent;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+    &:hover {
+      transform: translateX(2px);
+    }
+  }
+
+  .gap-high {
+    color: color.adjust($severity-high, $lightness: -5%);
+    background: rgba($severity-high, 0.08);
+    border-color: rgba($severity-high, 0.25);
+  }
+
+  .gap-medium {
+    color: color.adjust($severity-medium, $lightness: -8%);
+    background: rgba($severity-medium, 0.1);
+    border-color: rgba($severity-medium, 0.3);
+  }
+
+  .gap-low {
+    color: color.adjust($severity-low, $lightness: -6%);
+    background: rgba($severity-low, 0.08);
+    border-color: rgba($severity-low, 0.25);
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   Responsive
+   ═══════════════════════════════════════════════════ */
+
+@media (max-width: 1100px) {
+  .interview-dashboard {
+    grid-template-columns: 200px 1fr;
+  }
+
+  .dashboard-aside {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+    align-items: start;
+    padding: 1.75rem 2rem;
+    border-left: none;
+    border-top: 1px solid $hairline;
+  }
+
+  .match-section {
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-bottom: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .interview-dashboard {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-sidebar {
+    padding: 1.25rem 1rem;
+    border-right: none;
+    border-bottom: 1px solid $hairline;
+  }
+
+  .sidebar-nav {
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 0.5rem;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .nav-item {
+    white-space: nowrap;
+    padding: 0.5rem 0.875rem;
+    font-size: 0.8125rem;
+
+    &.is-active::before {
+      display: none;
+    }
+  }
+
+  .dashboard-main {
+    padding: 1.5rem 1rem;
+  }
+
+  .main-title {
+    font-size: 1.125rem;
+  }
+
+  .question-header {
+    gap: 0.75rem;
+    padding: 0.875rem;
+    font-size: 0.875rem;
+  }
+
+  .question-body {
+    padding: 0 0.875rem 1rem 3.5rem;
+  }
+
+  .dashboard-aside {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+    padding: 1.5rem 1rem;
+  }
+
+  .score-ring {
+    width: 120px;
+    height: 120px;
+
+    .score-num {
+      font-size: 2rem;
+    }
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   Roadmap
+   ═══════════════════════════════════════════════════ */
+
+.roadmap {
+  width: 100%;
+  max-width: 780px;
+}
+
+/* ─── Summary panel ─── */
+
+.roadmap-summary {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 2rem;
+  background: $surface;
+  border: 1px solid $hairline;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-sm;
+}
+
+.summary-ring {
+  position: relative;
+  flex-shrink: 0;
+  width: 68px;
+  height: 68px;
+
+  svg {
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+  }
+
+  .summary-ring-bg {
+    fill: none;
+    stroke: rgba($primary-color, 0.1);
+    stroke-width: 4;
+  }
+
+  .summary-ring-fg {
+    fill: none;
+    stroke: $primary-color;
+    stroke-width: 4;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .summary-ring-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: $text-strong;
+    letter-spacing: -0.02em;
+  }
+}
+
+.summary-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.summary-title {
+  margin: 0 0 0.125rem;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: $text-strong;
+  letter-spacing: -0.01em;
+}
+
+.summary-sub {
+  margin: 0 0 0.75rem;
+  font-size: 0.8125rem;
+  color: $text-muted;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba($primary-color, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(135deg,
+      $primary-color,
+      color.adjust($primary-color, $lightness: 8%));
+  border-radius: 999px;
+  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 10px rgba($primary-color, 0.3);
+}
+
+/* ─── Timeline list ─── */
+
+.roadmap-list {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.roadmap-item {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 1rem;
+  position: relative;
+}
+
+/* ─── Timeline node column ─── */
+
+.roadmap-node {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.node-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: $surface;
+  border: 2px solid $hairline-strong;
+  color: $text-dim;
+  font-size: 0.8125rem;
+  font-weight: 700;
   transition:
     border-color 0.2s ease,
     background 0.2s ease,
-    transform 0.1s ease;
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+  z-index: 1;
+}
 
-  input[type="file"] {
-    display: none;
+.node-line {
+  flex: 1;
+  width: 2px;
+  margin: 0.25rem 0;
+  background: linear-gradient(to bottom,
+      rgba($primary-color, 0.2),
+      rgba($primary-color, 0.05));
+}
+
+/* Node — Done */
+.roadmap-item.status-done .node-circle {
+  color: $white;
+  border-color: $severity-low;
+  background: linear-gradient(135deg,
+      $severity-low,
+      color.adjust($severity-low, $lightness: -8%));
+  box-shadow: 0 4px 10px -2px rgba($severity-low, 0.35);
+}
+
+/* Node — In Progress */
+.roadmap-item.status-in-progress .node-circle {
+  border-color: $primary-color;
+  background: $surface;
+  box-shadow: 0 0 0 4px rgba($primary-color, 0.12);
+}
+
+.node-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: $primary-color;
+  animation: pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
   }
 
-  &:hover,
-  &.is-dragover {
-    border-color: $primary-color;
-    background: rgba($primary-color, 0.04);
-  }
-
-  &.is-dragover {
-    transform: scale(1.005);
-  }
-
-  .drop-icon {
-    color: $primary-color;
-    margin-bottom: 0.25rem;
-  }
-
-  .drop-title {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: $text-color;
-    line-height: 1.4;
-  }
-
-  .drop-hint {
-    font-size: 0.75rem;
-    color: #9ca3af;
-  }
-
-  /* When a file is chosen, switch to horizontal layout */
-  &.has-file {
-    flex-direction: row;
-    justify-content: flex-start;
-    text-align: left;
-    border-style: solid;
-    border-color: $primary-color;
-    background: rgba($primary-color, 0.05);
-    padding: 0.875rem 1rem;
-
-    .file-icon {
-      color: $primary-color;
-      flex-shrink: 0;
-    }
-
-    .file-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .file-name {
-      font-size: 0.875rem;
-      font-weight: 600;
-      color: $text-color;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .file-size {
-      font-size: 0.75rem;
-      color: #6b7280;
-      margin-top: 0.125rem;
-    }
-
-    .file-remove {
-      flex-shrink: 0;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 28px;
-      height: 28px;
-      background: transparent;
-      border: none;
-      border-radius: 0.375rem;
-      color: #ef4444;
-      cursor: pointer;
-      transition: background 0.15s ease;
-
-      &:hover {
-        background: rgba(239, 68, 68, 0.1);
-      }
-    }
+  50% {
+    transform: scale(1.25);
+    opacity: 0.6;
   }
 }
 
-/* ═══════════════════════════════════════════
-   Actions & feedback
-   ═══════════════════════════════════════════ */
+/* Node — Pending */
+.roadmap-item.status-pending .node-circle {
+  border-color: $hairline-strong;
+  background: $surface-subtle;
+  color: $text-muted;
+}
 
-.form-actions {
+/* ─── Card ─── */
+
+.roadmap-card {
+  position: relative;
+  margin-bottom: 0.75rem;
+  background: $surface;
+  border: 1px solid $hairline;
+  border-left: 3px solid $hairline-strong;
+  border-radius: $radius-md;
+  box-shadow: $shadow-sm;
+  overflow: hidden;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+
+  &:hover {
+    box-shadow: $shadow-md;
+    transform: translateX(2px);
+  }
+}
+
+.roadmap-item.status-done .roadmap-card {
+  border-left-color: $severity-low;
+}
+
+.roadmap-item.status-in-progress .roadmap-card {
+  border-left-color: $primary-color;
+  box-shadow:
+    0 4px 12px -2px rgba($primary-color, 0.15),
+    0 2px 4px -1px rgba($primary-color, 0.08);
+}
+
+.roadmap-item.status-pending .roadmap-card {
+  border-left-color: $border-color;
+  opacity: 0.85;
+}
+
+.roadmap-card.is-open {
+  transform: none;
+
+  &:hover {
+    transform: none;
+  }
+}
+
+/* ─── Card header ─── */
+
+.roadmap-header {
   display: flex;
-  justify-content: flex-end;
-  padding-top: 0.5rem;
-
-  .button {
-    min-width: 220px;
-    gap: 0.5rem;
-  }
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 1rem 1.125rem;
+  font-family: inherit;
+  text-align: left;
+  color: inherit;
+  background: transparent;
+  border: none;
+  cursor: pointer;
 }
 
-.error-text {
+.roadmap-heading {
+  flex: 1;
+  min-width: 0;
+}
+
+.roadmap-meta {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.8125rem;
-  color: #b91c1c;
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  padding: 0.625rem 0.875rem;
-  border-radius: 0.5rem;
-  margin-top: 1rem;
-  line-height: 1.45;
+  margin-bottom: 0.25rem;
 }
 
-/* ═══════════════════════════════════════════
-   Responsive
-   ═══════════════════════════════════════════ */
+.roadmap-phase {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: $text-dim;
+}
 
-@media (max-width: 900px) {
-  .interview-page {
-    padding: 2rem 1rem;
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  border: 1px solid transparent;
+
+  &.status-done {
+    color: color.adjust($severity-low, $lightness: -8%);
+    background: rgba($severity-low, 0.1);
+    border-color: rgba($severity-low, 0.25);
   }
 
-  .form-grid {
-    grid-template-columns: 1fr;
-    gap: 1.25rem;
+  &.status-in-progress {
+    color: $accent;
+    background: $accent-soft;
+    border-color: $accent-soft-2;
   }
 
-  .card {
-    min-height: 0;
-  }
-
-  .field textarea {
-    min-height: 180px;
-  }
-
-  .page-title {
-    font-size: 1.75rem;
+  &.status-pending {
+    color: $text-muted;
+    background: rgba($border-color, 0.25);
+    border-color: $hairline;
   }
 }
 
-@media (max-width: 480px) {
-  .interview-page {
-    padding: 1.5rem 0.75rem;
+.roadmap-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: $text-strong;
+  line-height: 1.35;
+  letter-spacing: -0.005em;
+}
+
+.roadmap-task-count {
+  margin: 0.25rem 0 0;
+  font-size: 0.75rem;
+  color: $text-muted;
+}
+
+.roadmap-card.is-open .chevron {
+  transform: rotate(180deg);
+  color: $accent;
+}
+
+/* ─── Tasks ─── */
+
+.roadmap-tasks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  padding: 0 1.125rem 1.125rem 1.125rem;
+  margin: 0;
+  list-style: none;
+  border-top: 1px dashed $hairline;
+  padding-top: 1rem;
+  animation: slideDown 0.22s ease;
+}
+
+.roadmap-task {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: $text-body;
+}
+
+.task-dot {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  margin-top: 0.55em;
+  border-radius: 50%;
+  background: $accent;
+  opacity: 0.65;
+}
+
+/* ─── Responsive ─── */
+
+@media (max-width: 720px) {
+  .roadmap-summary {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    padding: 1.125rem;
   }
 
-  .interview-container {
-    gap: 1.25rem;
-  }
+  .summary-ring {
+    align-self: flex-start;
+    width: 60px;
+    height: 60px;
 
-  .card {
-    padding: 1.25rem;
-    border-radius: 0.875rem;
-  }
-
-  .page-title {
-    font-size: 1.5rem;
-  }
-
-  .page-subtitle {
-    font-size: 0.9375rem;
-  }
-
-  .form-actions {
-    justify-content: stretch;
-
-    .button {
-      width: 100%;
-      min-width: 0;
+    .summary-ring-text {
+      font-size: 0.8125rem;
     }
+  }
+
+  .roadmap-item {
+    grid-template-columns: 32px 1fr;
+    gap: 0.75rem;
+  }
+
+  .node-circle {
+    width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
+  }
+
+  .roadmap-header {
+    padding: 0.875rem 1rem;
+  }
+
+  .roadmap-title {
+    font-size: 0.9375rem;
   }
 }

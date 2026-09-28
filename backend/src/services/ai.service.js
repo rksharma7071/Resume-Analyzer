@@ -7,42 +7,12 @@ const ai = new GoogleGenAI({
 });
 
 const interviewReportSchema = z.object({
-  matchScore: z
-    .number()
-    .min(0)
-    .max(100)
-    .describe("Match score between the candidate and the job description."),
-
-  technicalQuestions: z.array(
-    z.object({
-      question: z.string(),
-      intention: z.string(),
-      answer: z.string(),
-    })
-  ),
-
-  behavioralQuestions: z.array(
-    z.object({
-      question: z.string(),
-      intention: z.string(),
-      answer: z.string(),
-    })
-  ),
-
-  skillGaps: z.array(
-    z.object({
-      skill: z.string(),
-      severity: z.enum(["low", "medium", "high"]),
-    })
-  ),
-
-  preparationPlan: z.array(
-    z.object({
-      day: z.string(),
-      focus: z.string(),
-      tasks: z.array(z.string()),
-    })
-  ),
+  matchScore: z.number().min(0).max(100).describe("Match score between the candidate and the job description."),
+  technicalQuestions: z.array(z.object({ question: z.string(), intention: z.string(), answer: z.string() })),
+  behavioralQuestions: z.array(z.object({ question: z.string(), intention: z.string(), answer: z.string() })),
+  skillGaps: z.array(z.object({ skill: z.string(), severity: z.enum(["low", "medium", "high"]) })),
+  preparationPlan: z.array(z.object({ day: z.string(), focus: z.string(), tasks: z.array(z.string()) })),
+  title: z.string().describe("The title of the job for which the interview report is generated."),
 });
 
 export const generateInterviewReport = async ({ resume, selfDescription, jobDescription }) => {

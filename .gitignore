@@ -49,3 +49,15 @@ db-data/
 
 # Misc
 *.local
+
+backend/code-backend.txt
+code-backend.txt
+
+backend/export-backend.js
+export-backend.js
+
+frontend/getCodebase.js
+getCodebase.js
+
+frontend/code-frontend.txt
+code-frontend.txt
