@@ -1,0 +1,814 @@
+
+================================================================================
+FILE: src/App.css
+================================================================================
+
+
+
+
+================================================================================
+FILE: src/App.jsx
+================================================================================
+
+import { useState } from 'react';
+import './App.css';
+import { router } from './app.routes.jsx';
+import { RouterProvider } from "react-router";
+import { AuthProvider } from './features/auth/auth.context.jsx';
+
+function App() {
+  const [count, setCount] = useState(0)
+
+  return (
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
+  )
+}
+
+export default App
+
+
+
+================================================================================
+FILE: src/app.routes.jsx
+================================================================================
+
+import { createBrowserRouter } from "react-router";
+import Register from "./features/auth/pages/Register.jsx";
+import Login from "./features/auth/pages/Login.jsx";
+import Protected from "./features/auth/components/Protected.jsx";
+import Home from "./features/interview/pages/Home.jsx";
+
+export const router = createBrowserRouter([
+  {
+    path: "/login",
+    element: <Login />
+  },
+  {
+    path: "/register",
+    element: <Register />
+  },
+  {
+    path: "/",
+    element: <Protected><Home /></Protected>
+  },
+
+])
+
+
+================================================================================
+FILE: src/features/auth/auth-form.scss
+================================================================================
+
+@use '../../styles/variables' as *;
+
+
+main {
+  font-family: $font-stack;
+  min-height: 100vh;
+  background: linear-gradient(135deg, $bg-gradient-start, $bg-gradient-end);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.form-container {
+  width: 100%;
+  max-width: 420px;
+  background: $white;
+  padding: 2rem;
+  border-radius: 0.8rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.2s ease;
+
+  h1 {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: $text-color;
+    margin-bottom: 1.2rem;
+    text-align: center;
+    letter-spacing: -0.025em;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  p {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 0.875rem;
+    color: $label-color;
+
+    a {
+      color: $primary-color;
+      font-weight: 500;
+      text-decoration: none;
+      transition: color 0.2s ease, text-decoration 0.2s ease;
+
+      &:hover {
+        color: $primary-hover;
+        text-decoration: underline;
+      }
+
+      &:focus-visible {
+        outline: 2px solid $primary-color;
+        outline-offset: 2px;
+        border-radius: 2px;
+      }
+    }
+  }
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: $label-color;
+    letter-spacing: 0.01em;
+  }
+
+  input {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    font-family: inherit;
+    color: $text-color;
+    background: #f9fafb;
+    border: 1.5px solid $border-color;
+    border-radius: 0.5rem;
+    transition: border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      background 0.2s ease;
+    outline: none;
+
+    &::placeholder {
+      color: #9ca3af;
+    }
+
+    &:focus {
+      border-color: $input-focus;
+      background: $white;
+      box-shadow: 0 0 0 3px rgba($input-focus, 0.15);
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .form-container {
+    padding: 1.5rem;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+}
+
+
+================================================================================
+FILE: src/features/auth/auth.context.jsx
+================================================================================
+
+import { createContext, useEffect, useState } from "react";
+import { getMe } from "./services/auth.api.js";
+
+export const AuthContext = createContext(null);
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getMe()
+      .then((data) => setUser(data?.user ?? null))
+      .catch(() => setUser(null))
+      .finally(() => setLoading(false));
+  }, []);
+
+  return (
+    <AuthContext.Provider value={{ user, setUser, loading, setLoading }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+
+================================================================================
+FILE: src/features/auth/components/Protected.jsx
+================================================================================
+
+import React from 'react'
+import { useAuth } from '../hooks/useAuth.jsx'
+import { Navigate } from 'react-router';
+
+const Protected = ({ children }) => {
+  const { loading, user } = useAuth();
+
+  if (loading) {
+    return (<main><h1>Loading...</h1></main>)
+  }
+
+  if (!user) {
+    return <Navigate to={"/login"} />;
+  }
+
+  return children;
+}
+
+export default Protected;
+
+
+================================================================================
+FILE: src/features/auth/hooks/useAuth.jsx
+================================================================================
+
+import { useContext, useEffect } from "react";
+import { AuthContext } from "../auth.context.jsx";
+import { login, register, logout, getMe } from "../services/auth.api.js";
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+
+  const { user, setUser, loading, setLoading } = context;
+
+  const handleRegister = async ({ name, email, password }) => {
+    setLoading(true);
+
+    try {
+      const data = await register({ name, email, password });
+
+      setUser(data.user);
+    } catch (error) {
+
+    }
+    finally {
+      setLoading(false);
+    }
+  }
+
+  const handleLogin = async ({ email, password }) => {
+    setLoading(true);
+
+    try {
+      const data = await login({ email, password });
+
+      setUser(data.user);
+    } catch (error) {
+
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const handleLogout = async () => {
+    setLoading(true);
+
+    try {
+      const data = await logout();
+
+      setUser(null);
+
+    } catch (error) {
+
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    try {
+      const getAndSendUser = async () => {
+        const data = await getMe();
+        setUser(data.user);
+        setLoading(false);
+      }
+
+      getAndSendUser();
+    } catch (error) {
+      console.log("Get And Send User: ", error);
+    } finally {
+      setLoading(false);
+    }
+
+  }, [])
+
+
+  return { user, loading, handleRegister, handleLogin, handleLogout }
+}
+
+
+================================================================================
+FILE: src/features/auth/pages/Login.jsx
+================================================================================
+
+import React, { useState } from 'react';
+import "../auth-form.scss";
+import "../../../styles/button.scss";
+import { Link, useNavigate } from 'react-router';
+import { useAuth } from '../hooks/useAuth.jsx';
+
+const Login = () => {
+
+  const { loading, handleLogin } = useAuth();
+  const navigate = useNavigate();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await handleLogin({ email, password })
+    navigate('/')
+  }
+
+  if (loading) {    
+    return (<main><h1>Loading...</h1></main>)
+  }
+
+  return (
+    <main>
+      <div className="form-container">
+        <h1>Login</h1>
+        <form onSubmit={handleSubmit}>
+          <div className="input-group">
+            <label htmlFor="email">Email</label>
+            <input type="email" onChange={(e) => { setEmail(e.target.value) }} name="email" id="email" />
+          </div>
+          <div className="input-group">
+            <label htmlFor="password">Password</label>
+            <input type="password" onChange={(e) => { setPassword(e.target.value) }} name="password" id="password" />
+          </div>
+          <button className='button button-primary'>Login</button>
+        </form>
+        <p>Don't have an account? <Link to={"/register"}>Register</Link></p>
+      </div>
+    </main>
+  )
+}
+
+export default Login
+
+
+
+================================================================================
+FILE: src/features/auth/pages/Register.jsx
+================================================================================
+
+import React, { useState } from 'react'
+import { Link, useNavigate } from "react-router";
+import { useAuth } from '../hooks/useAuth.jsx';
+
+const Register = () => {
+
+  const { loading, handleRegister } = useAuth();
+  const navigate = useNavigate();
+
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await handleRegister({ name, email, password });
+    navigate("/");
+  }
+
+  if (loading) {
+    return (<main><h1>Loading...</h1></main>);
+  }
+
+  return (
+    <main>
+      <div className="form-container">
+        <h1>Register</h1>
+        <form onSubmit={handleSubmit}>
+          <div className="input-group">
+            <label htmlFor="name">Name</label>
+            <input type="text" onChange={(e) => { setName(e.target.value) }} name="name" id="name" />
+          </div>
+          <div className="input-group">
+            <label htmlFor="email">Email</label>
+            <input type="email" onChange={(e) => { setEmail(e.target.value) }} name="email" id="email" />
+          </div>
+          <div className="input-group">
+            <label htmlFor="password">Password</label>
+            <input type="password" onChange={(e) => { setPassword(e.target.value) }} name="password" id="password" />
+          </div>
+          <button className='button button-primary'>Register</button>
+        </form>
+        <p>Already have an account? <Link to={"/login"}>Login</Link></p>
+      </div>
+    </main>
+  )
+}
+
+export default Register
+
+
+
+================================================================================
+FILE: src/features/auth/services/auth.api.js
+================================================================================
+
+import axios from "axios";
+
+
+const api = axios.create({
+  baseURL: "http://localhost:3000",
+  withCredentials: true
+})
+
+export const register = async ({ name, email, password }) => {
+  try {
+    const response = await api.post("/api/auth/register",
+      { name, email, password }
+    )
+
+    return response.data;
+
+  } catch (error) {
+    console.log("Register Error: ", error);
+  }
+}
+
+export const login = async ({ email, password }) => {
+  try {
+    const response = await api.post("http://localhost:3000/api/auth/login",
+      { email, password }
+    )
+    return response.data;
+
+  } catch (error) {
+    console.log("Login Error: ", error);
+  }
+}
+
+export const logout = async () => {
+  try {
+    const response = await api.get("http://localhost:3000/api/auth/logout")
+
+    return response.data;
+
+  } catch (error) {
+    console.log("Logout Error: ", error);
+  }
+}
+
+export const getMe = async () => {
+  try {
+    const response = await api.get("http://localhost:3000/api/auth/me")
+
+    return response.data;
+
+  } catch (error) {
+    console.log("Get Me Error: ", error);
+  }
+}
+
+
+================================================================================
+FILE: src/features/interview/interview.scss
+================================================================================
+
+@use '../../styles/variables' as *;
+
+@use "sass:color";
+
+.home {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  width: 100%;
+  max-width: 1200px;
+  min-height: 100vh;
+  margin: 0 auto;
+
+  .left,
+  .right {
+    background: $white;
+    border-radius: 1rem;
+    padding: 1.75rem;
+    box-shadow: 0 10px 20px -8px rgba(0, 0, 0, 0.08),
+      0 4px 8px -4px rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .left {
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: $text-color;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.25rem;
+    }
+
+    textarea[name="jobDescription"] {
+      flex: 1;
+      min-height: 420px;
+    }
+  }
+
+  .right {
+    justify-content: flex-start;
+
+    // the last input group (self description) grows to fill space
+    .input-group:last-of-type {
+      flex: 1;
+
+      textarea {
+        flex: 1;
+        min-height: 200px;
+      }
+    }
+  }
+
+  textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    font-family: inherit;
+    color: $text-color;
+    background: #f9fafb;
+    border: 1.5px solid $border-color;
+    border-radius: 0.5rem;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      background 0.2s ease;
+
+    &::placeholder {
+      color: #9ca3af;
+    }
+
+    &:focus {
+      border-color: $input-focus;
+      background: $white;
+      box-shadow: 0 0 0 3px rgba($input-focus, 0.15);
+    }
+  }
+
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: $label-color;
+      letter-spacing: 0.01em;
+    }
+
+    input[type="file"] {
+      padding: 0.5rem;
+      font-size: 0.875rem;
+      font-family: inherit;
+      color: $text-color;
+      background: #f9fafb;
+      border: 1.5px dashed $border-color;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: border-color 0.2s ease, background 0.2s ease;
+
+      &:hover {
+        border-color: $input-focus;
+        background: rgba($input-focus, 0.04);
+      }
+
+      &:focus-visible {
+        outline: 2px solid $input-focus;
+        outline-offset: 2px;
+      }
+
+      &::file-selector-button {
+        margin-right: 0.75rem;
+        padding: 0.4rem 0.9rem;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        font-family: inherit;
+        color: $white;
+        background: linear-gradient(135deg, $primary-color, color.adjust($primary-color, $lightness: 5%));
+        border: none;
+        border-radius: 0.4rem;
+        cursor: pointer;
+        transition: background 0.2s ease, transform 0.1s ease;
+
+        &:hover {
+          background: linear-gradient(135deg, $primary-hover, $primary-color);
+        }
+
+        &:active {
+          transform: scale(0.98);
+        }
+      }
+    }
+  }
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+  .home {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    min-height: auto;
+
+    .left textarea[name="jobDescription"] {
+      min-height: 260px;
+    }
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .home {
+    gap: 1rem;
+
+    .left,
+    .right {
+      padding: 1.25rem;
+      border-radius: 0.75rem;
+    }
+
+    .left textarea[name="jobDescription"] {
+      min-height: 200px;
+    }
+  }
+}
+
+
+================================================================================
+FILE: src/features/interview/pages/Home.jsx
+================================================================================
+
+import React from 'react'
+import "../interview.scss"
+
+const Home = () => {
+  return (
+    <main className='home'>
+      <div className="left">
+        <textarea name="jobDescription" id="jobDescription" placeholder="Enter job description..."></textarea>
+      </div>
+      <div className="right">
+        <div className="input-group">
+          <label htmlFor="resume">Upload Resume</label>
+          <input type="file" name="resume" id="resume" accept=".pdf" />
+        </div>
+        <div className="input-group">
+          <label htmlFor="selfDescription">Upload Self Description</label>
+          <textarea name="selfDescription" id="selfDescription" placeholder="Enter self description..."></textarea>
+        </div>
+      </div>
+    </main>
+  )
+}
+
+export default Home
+
+
+
+================================================================================
+FILE: src/index.css
+================================================================================
+
+
+
+
+================================================================================
+FILE: src/main.jsx
+================================================================================
+
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import './index.css';
+import './styles/style.scss';
+import App from './App.jsx';
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+)
+
+
+================================================================================
+FILE: src/styles/_variables.scss
+================================================================================
+
+$primary-color: #4f46e5;
+$primary-hover: #4338ca;
+
+$text-color: #1f2937;
+$label-color: #374151;
+$border-color: #d1d5db;
+$input-focus: #6366f1;
+
+$white: #ffffff;
+
+$bg-gradient-start: #eef2ff;
+$bg-gradient-end: #e0e7ff;
+
+$font-stack: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+
+================================================================================
+FILE: src/styles/button.scss
+================================================================================
+
+@use './variables' as *;
+@use "sass:color";
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  line-height: 1.5;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.2s ease,
+    transform 0.1s ease,
+    box-shadow 0.2s ease;
+  user-select: none;
+
+  &:active {
+    transform: scale(0.98);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary-color;
+    outline-offset: 2px;
+  }
+}
+
+.button-primary {
+  width: 100%;
+  color: $white;
+
+  background: linear-gradient(135deg,
+      $primary-color,
+      color.adjust($primary-color, $lightness: 5%));
+
+  box-shadow:
+    0 4px 6px -1px rgba($primary-color, 0.3),
+    0 2px 4px -1px rgba($primary-color, 0.2);
+
+  &:hover {
+    background: linear-gradient(135deg,
+        $primary-hover,
+        $primary-color );
+
+    box-shadow:
+      0 10px 15px -3px rgba($primary-color, 0.3),
+      0 4px 6px -2px rgba($primary-color, 0.2);
+
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0) scale(0.98);
+
+    box-shadow:
+      0 4px 6px -1px rgba($primary-color, 0.2);
+  }
+}
+
+
+================================================================================
+FILE: src/styles/style.scss
+================================================================================
+
+@use './variables' as *;
+
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  // background-color: #161616;
+  // color: whitesmoke;
+  font-family: $font-stack;
+}
