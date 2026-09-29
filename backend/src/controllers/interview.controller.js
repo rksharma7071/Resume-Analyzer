@@ -28,7 +28,6 @@ export const generateInterview = async (req, res) => {
       });
     }
 
-    // Extract resume text from PDF
     const parser = new PDFParse({ data: req.file.buffer });
     const result = await parser.getText();
     const resume = result.text?.trim();
@@ -40,7 +39,6 @@ export const generateInterview = async (req, res) => {
       });
     }
 
-    // Generate report using AI
     const report = await generateInterviewReport({
       resume,
       selfDescription,
@@ -54,7 +52,6 @@ export const generateInterview = async (req, res) => {
       });
     }
 
-    // Save report
     const interviewReport = await InterviewReport.create({
       ...report,
       resume,

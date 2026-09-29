@@ -1,56 +1,32 @@
 import { useContext } from "react";
 import { AuthContext } from "../auth.context.jsx";
-import { login, register, logout } from "../services/auth.api.js";
+import { login, logout, register } from "../services/auth.api.js";
+import { getErrorMessage } from "../services/api.js";
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) throw new Error("useAuth must be used within an AuthProvider");
 
-  const { user, setUser, loading, setLoading } = context;
+  const { user, setUser, loading } = context;
 
-  const handleRegister = async ({ name, email, password }) => {
-    setLoading(true);
+  const authenticate = async (request, fallback) => {
     try {
-      const data = await register({ name, email, password });
+      const data = await request();
       setUser(data.user);
       return { success: true };
     } catch (error) {
-      return {
-        success: false,
-        message: error?.response?.data?.message || "Registration failed",
-      };
-    } finally {
-      setLoading(false);
+      return { success: false, message: getErrorMessage(error, fallback) };
     }
   };
 
-  const handleLogin = async ({ email, password }) => {
-    setLoading(true);
-    try {
-      const data = await login({ email, password });
-      setUser(data.user);
-      return { success: true };
-    } catch (error) {
-      return {
-        success: false,
-        message: error?.response?.data?.message || "Invalid email or password",
-      };
-    } finally {
-      setLoading(false);
-    }
-  };
+  const handleRegister = (values) => authenticate(() => register(values), "Registration failed.");
+  const handleLogin = (values) => authenticate(() => login(values), "Login failed.");
 
   const handleLogout = async () => {
-    setLoading(true);
     try {
       await logout();
-      setUser(null);
-      return { success: true };
-    } catch {
-      setUser(null); // clear locally even if the server call fails
-      return { success: true };
     } finally {
-      setLoading(false);
+      setUser(null);
     }
   };
 

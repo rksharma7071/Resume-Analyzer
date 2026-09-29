@@ -1,30 +1,20 @@
-import axios from "axios";
+import { api } from "../../auth/services/api.js";
 
-const api = axios.create({
-  baseURL: "http://localhost:3000",
-  withCredentials: true,
-});
+const BASE = "/api/interviewReport";
 
-export const generateInterviewReport = async ({ jobDescription, selfDescription, resumeFile }) => {
+export const generateInterviewReport = ({ jobDescription, selfDescription, resumeFile }) => {
   const formData = new FormData();
-
   formData.append("jobDescription", jobDescription);
   formData.append("selfDescription", selfDescription);
   formData.append("resume", resumeFile);
 
-  const { data } = await api.post("/api/interviewReport", formData);
-
-  return data;
+  return api.post(BASE, formData).then((res) => res.data.interviewReport);
 };
 
-export const getInterviewReportById = async (interviewId) => {
-  const { data } = await api.get(`/api/interviewReport/${interviewId}`);
+export const getAllInterviewReports = () => api.get(BASE).then((res) => res.data.interviewReports);
 
-  return data;
-};
+export const getInterviewReportById = (id) => api.get(`${BASE}/${id}`).then((res) => res.data.interviewReport);
 
-export const getAllInterviewReports = async () => {
-  const { data } = await api.get("/api/interviewReport");
+export const renameInterviewReport = (id, title) => api.patch(`${BASE}/${id}`, { title }).then((res) => res.data.interviewReport);
 
-  return data;
-};
+export const deleteInterviewReport = (id) => api.delete(`${BASE}/${id}`);

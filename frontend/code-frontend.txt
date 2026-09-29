@@ -1,561 +1,135 @@
 
-================================================================================
-FILE: src/App.css
-================================================================================
+  ================================================================================
+  FILE: src/App.css
+  ================================================================================
 
 
 
 
-================================================================================
-FILE: src/App.jsx
-================================================================================
+  ================================================================================
+  FILE: src/App.jsx
+  ================================================================================
 
-import { useState } from 'react';
-import './App.css';
-import { router } from './app.routes.jsx';
-import { RouterProvider } from "react-router";
-import { AuthProvider } from './features/auth/auth.context.jsx';
+  import { useState } from 'react';
+  import './App.css';
+  import { router } from './app.routes.jsx';
+  import { RouterProvider } from "react-router";
+  import { AuthProvider } from './features/auth/auth.context.jsx';
+  import { InterviewProvider } from './features/interview/interview.context.jsx';
 
-function App() {
-  const [count, setCount] = useState(0)
+  function App() {
+    const [count, setCount] = useState(0)
 
-  return (
-    <AuthProvider>
-      <RouterProvider router={router} />
-    </AuthProvider>
-  )
-}
-
-export default App
-
-
-
-================================================================================
-FILE: src/app.routes.jsx
-================================================================================
-
-import { createBrowserRouter } from "react-router";
-import Register from "./features/auth/pages/Register.jsx";
-import Login from "./features/auth/pages/Login.jsx";
-import Protected from "./features/auth/components/Protected.jsx";
-import Home from "./features/interview/pages/Home.jsx";
-
-export const router = createBrowserRouter([
-  {
-    path: "/login",
-    element: <Login />
-  },
-  {
-    path: "/register",
-    element: <Register />
-  },
-  {
-    path: "/",
-    element: <Protected><Home /></Protected>
-  },
-
-])
-
-
-================================================================================
-FILE: src/features/auth/auth-form.scss
-================================================================================
-
-@use '../../styles/variables' as *;
-
-
-main {
-  font-family: $font-stack;
-  min-height: 100vh;
-  background: linear-gradient(135deg, $bg-gradient-start, $bg-gradient-end);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-}
-
-.form-container {
-  width: 100%;
-  max-width: 420px;
-  background: $white;
-  padding: 2rem;
-  border-radius: 0.8rem;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
-    0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  transition: box-shadow 0.2s ease;
-
-  h1 {
-    font-size: 1.875rem;
-    font-weight: 700;
-    color: $text-color;
-    margin-bottom: 1.2rem;
-    text-align: center;
-    letter-spacing: -0.025em;
+    return (
+      <AuthProvider>
+        <InterviewProvider>
+          <RouterProvider router={router} />
+        </InterviewProvider>
+      </AuthProvider>
+    )
   }
 
-  form {
+  export default App
+
+
+
+  ================================================================================
+  FILE: src/app.routes.jsx
+  ================================================================================
+
+  import { createBrowserRouter } from "react-router";
+  import Register from "./features/auth/pages/Register.jsx";
+  import Login from "./features/auth/pages/Login.jsx";
+  import Protected from "./features/auth/components/Protected.jsx";
+  import Home from "./features/interview/pages/Home.jsx";
+  import Interview from "./features/interview/pages/Interview.jsx";
+
+  export const router = createBrowserRouter([
+    {
+      path: "/login",
+      element: <Login />
+    },
+    {
+      path: "/register",
+      element: <Register />
+    },
+    {
+      path: "/",
+      element: <Protected><Home /></Protected>
+    },
+    {
+      path: "/interview/:id",
+      element: <Protected><Interview /></Protected>
+    },
+
+  ])
+
+
+  ================================================================================
+  FILE: src/features/auth/auth-form.scss
+  ================================================================================
+
+  @use '../../styles/variables' as *;
+
+
+  main {
+    font-family: $font-stack;
+    min-height: 100vh;
+    background: linear-gradient(135deg, $bg-gradient-start, $bg-gradient-end);
     display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
   }
 
-  p {
-    margin-top: 1.5rem;
-    text-align: center;
-    font-size: 0.875rem;
-    color: $label-color;
-
-    a {
-      color: $primary-color;
-      font-weight: 500;
-      text-decoration: none;
-      transition: color 0.2s ease, text-decoration 0.2s ease;
-
-      &:hover {
-        color: $primary-hover;
-        text-decoration: underline;
-      }
-
-      &:focus-visible {
-        outline: 2px solid $primary-color;
-        outline-offset: 2px;
-        border-radius: 2px;
-      }
-    }
-  }
-}
-
-.input-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-
-  label {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: $label-color;
-    letter-spacing: 0.01em;
-  }
-
-  input {
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-    font-family: inherit;
-    color: $text-color;
-    background: #f9fafb;
-    border: 1.5px solid $border-color;
-    border-radius: 0.5rem;
-    transition: border-color 0.2s ease,
-      box-shadow 0.2s ease,
-      background 0.2s ease;
-    outline: none;
-
-    &::placeholder {
-      color: #9ca3af;
-    }
-
-    &:focus {
-      border-color: $input-focus;
-      background: $white;
-      box-shadow: 0 0 0 3px rgba($input-focus, 0.15);
-    }
-  }
-}
-
-@media (max-width: 480px) {
   .form-container {
-    padding: 1.5rem;
-  }
-
-  h1 {
-    font-size: 1.5rem;
-  }
-}
-
-
-================================================================================
-FILE: src/features/auth/auth.context.jsx
-================================================================================
-
-import { createContext, useEffect, useState } from "react";
-import { getMe } from "./services/auth.api.js";
-
-export const AuthContext = createContext(null);
-
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    getMe()
-      .then((data) => setUser(data?.user ?? null))
-      .catch(() => setUser(null))
-      .finally(() => setLoading(false));
-  }, []);
-
-  return (
-    <AuthContext.Provider value={{ user, setUser, loading, setLoading }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
-
-
-================================================================================
-FILE: src/features/auth/components/Protected.jsx
-================================================================================
-
-import React from 'react'
-import { useAuth } from '../hooks/useAuth.jsx'
-import { Navigate } from 'react-router';
-
-const Protected = ({ children }) => {
-  const { loading, user } = useAuth();
-
-  if (loading) {
-    return (<main><h1>Loading...</h1></main>)
-  }
-
-  if (!user) {
-    return <Navigate to={"/login"} />;
-  }
-
-  return children;
-}
-
-export default Protected;
-
-
-================================================================================
-FILE: src/features/auth/hooks/useAuth.jsx
-================================================================================
-
-import { useContext, useEffect } from "react";
-import { AuthContext } from "../auth.context.jsx";
-import { login, register, logout, getMe } from "../services/auth.api.js";
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-
-  const { user, setUser, loading, setLoading } = context;
-
-  const handleRegister = async ({ name, email, password }) => {
-    setLoading(true);
-
-    try {
-      const data = await register({ name, email, password });
-
-      setUser(data.user);
-    } catch (error) {
-
-    }
-    finally {
-      setLoading(false);
-    }
-  }
-
-  const handleLogin = async ({ email, password }) => {
-    setLoading(true);
-
-    try {
-      const data = await login({ email, password });
-
-      setUser(data.user);
-    } catch (error) {
-
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  const handleLogout = async () => {
-    setLoading(true);
-
-    try {
-      const data = await logout();
-
-      setUser(null);
-
-    } catch (error) {
-
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  useEffect(() => {
-    try {
-      const getAndSendUser = async () => {
-        const data = await getMe();
-        setUser(data.user);
-        setLoading(false);
-      }
-
-      getAndSendUser();
-    } catch (error) {
-      console.log("Get And Send User: ", error);
-    } finally {
-      setLoading(false);
-    }
-
-  }, [])
-
-
-  return { user, loading, handleRegister, handleLogin, handleLogout }
-}
-
-
-================================================================================
-FILE: src/features/auth/pages/Login.jsx
-================================================================================
-
-import React, { useState } from 'react';
-import "../auth-form.scss";
-import "../../../styles/button.scss";
-import { Link, useNavigate } from 'react-router';
-import { useAuth } from '../hooks/useAuth.jsx';
-
-const Login = () => {
-
-  const { loading, handleLogin } = useAuth();
-  const navigate = useNavigate();
-
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    await handleLogin({ email, password })
-    navigate('/')
-  }
-
-  if (loading) {    
-    return (<main><h1>Loading...</h1></main>)
-  }
-
-  return (
-    <main>
-      <div className="form-container">
-        <h1>Login</h1>
-        <form onSubmit={handleSubmit}>
-          <div className="input-group">
-            <label htmlFor="email">Email</label>
-            <input type="email" onChange={(e) => { setEmail(e.target.value) }} name="email" id="email" />
-          </div>
-          <div className="input-group">
-            <label htmlFor="password">Password</label>
-            <input type="password" onChange={(e) => { setPassword(e.target.value) }} name="password" id="password" />
-          </div>
-          <button className='button button-primary'>Login</button>
-        </form>
-        <p>Don't have an account? <Link to={"/register"}>Register</Link></p>
-      </div>
-    </main>
-  )
-}
-
-export default Login
-
-
-
-================================================================================
-FILE: src/features/auth/pages/Register.jsx
-================================================================================
-
-import React, { useState } from 'react'
-import { Link, useNavigate } from "react-router";
-import { useAuth } from '../hooks/useAuth.jsx';
-
-const Register = () => {
-
-  const { loading, handleRegister } = useAuth();
-  const navigate = useNavigate();
-
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    await handleRegister({ name, email, password });
-    navigate("/");
-  }
-
-  if (loading) {
-    return (<main><h1>Loading...</h1></main>);
-  }
-
-  return (
-    <main>
-      <div className="form-container">
-        <h1>Register</h1>
-        <form onSubmit={handleSubmit}>
-          <div className="input-group">
-            <label htmlFor="name">Name</label>
-            <input type="text" onChange={(e) => { setName(e.target.value) }} name="name" id="name" />
-          </div>
-          <div className="input-group">
-            <label htmlFor="email">Email</label>
-            <input type="email" onChange={(e) => { setEmail(e.target.value) }} name="email" id="email" />
-          </div>
-          <div className="input-group">
-            <label htmlFor="password">Password</label>
-            <input type="password" onChange={(e) => { setPassword(e.target.value) }} name="password" id="password" />
-          </div>
-          <button className='button button-primary'>Register</button>
-        </form>
-        <p>Already have an account? <Link to={"/login"}>Login</Link></p>
-      </div>
-    </main>
-  )
-}
-
-export default Register
-
-
-
-================================================================================
-FILE: src/features/auth/services/auth.api.js
-================================================================================
-
-import axios from "axios";
-
-
-const api = axios.create({
-  baseURL: "http://localhost:3000",
-  withCredentials: true
-})
-
-export const register = async ({ name, email, password }) => {
-  try {
-    const response = await api.post("/api/auth/register",
-      { name, email, password }
-    )
-
-    return response.data;
-
-  } catch (error) {
-    console.log("Register Error: ", error);
-  }
-}
-
-export const login = async ({ email, password }) => {
-  try {
-    const response = await api.post("http://localhost:3000/api/auth/login",
-      { email, password }
-    )
-    return response.data;
-
-  } catch (error) {
-    console.log("Login Error: ", error);
-  }
-}
-
-export const logout = async () => {
-  try {
-    const response = await api.get("http://localhost:3000/api/auth/logout")
-
-    return response.data;
-
-  } catch (error) {
-    console.log("Logout Error: ", error);
-  }
-}
-
-export const getMe = async () => {
-  try {
-    const response = await api.get("http://localhost:3000/api/auth/me")
-
-    return response.data;
-
-  } catch (error) {
-    console.log("Get Me Error: ", error);
-  }
-}
-
-
-================================================================================
-FILE: src/features/interview/interview.scss
-================================================================================
-
-@use '../../styles/variables' as *;
-
-@use "sass:color";
-
-.home {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  width: 100%;
-  max-width: 1200px;
-  min-height: 100vh;
-  margin: 0 auto;
-
-  .left,
-  .right {
+    width: 100%;
+    max-width: 420px;
     background: $white;
-    border-radius: 1rem;
-    padding: 1.75rem;
-    box-shadow: 0 10px 20px -8px rgba(0, 0, 0, 0.08),
-      0 4px 8px -4px rgba(0, 0, 0, 0.04);
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-  }
+    padding: 2rem;
+    border-radius: 0.8rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+      0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    transition: box-shadow 0.2s ease;
 
-  .left {
-    h2 {
-      font-size: 1.25rem;
+    h1 {
+      font-size: 1.875rem;
       font-weight: 700;
       color: $text-color;
-      letter-spacing: -0.01em;
-      margin-bottom: 0.25rem;
+      margin-bottom: 1.2rem;
+      text-align: center;
+      letter-spacing: -0.025em;
     }
 
-    textarea[name="jobDescription"] {
-      flex: 1;
-      min-height: 420px;
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
     }
-  }
 
-  .right {
-    justify-content: flex-start;
+    p {
+      margin-top: 1.5rem;
+      text-align: center;
+      font-size: 0.875rem;
+      color: $label-color;
 
-    // the last input group (self description) grows to fill space
-    .input-group:last-of-type {
-      flex: 1;
+      a {
+        color: $primary-color;
+        font-weight: 500;
+        text-decoration: none;
+        transition: color 0.2s ease, text-decoration 0.2s ease;
 
-      textarea {
-        flex: 1;
-        min-height: 200px;
+        &:hover {
+          color: $primary-hover;
+          text-decoration: underline;
+        }
+
+        &:focus-visible {
+          outline: 2px solid $primary-color;
+          outline-offset: 2px;
+          border-radius: 2px;
+        }
       }
-    }
-  }
-
-  textarea {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    font-size: 0.95rem;
-    line-height: 1.55;
-    font-family: inherit;
-    color: $text-color;
-    background: #f9fafb;
-    border: 1.5px solid $border-color;
-    border-radius: 0.5rem;
-    resize: vertical;
-    outline: none;
-    transition: border-color 0.2s ease,
-      box-shadow 0.2s ease,
-      background 0.2s ease;
-
-    &::placeholder {
-      color: #9ca3af;
-    }
-
-    &:focus {
-      border-color: $input-focus;
-      background: $white;
-      box-shadow: 0 0 0 3px rgba($input-focus, 0.15);
     }
   }
 
@@ -571,244 +145,2439 @@ FILE: src/features/interview/interview.scss
       letter-spacing: 0.01em;
     }
 
-    input[type="file"] {
-      padding: 0.5rem;
-      font-size: 0.875rem;
+    input {
+      padding: 0.5rem 1rem;
+      font-size: 1rem;
       font-family: inherit;
       color: $text-color;
       background: #f9fafb;
-      border: 1.5px dashed $border-color;
+      border: 1.5px solid $border-color;
       border-radius: 0.5rem;
-      cursor: pointer;
-      transition: border-color 0.2s ease, background 0.2s ease;
+      transition: border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+      outline: none;
 
-      &:hover {
+      &::placeholder {
+        color: #9ca3af;
+      }
+
+      &:focus {
         border-color: $input-focus;
-        background: rgba($input-focus, 0.04);
+        background: $white;
+        box-shadow: 0 0 0 3px rgba($input-focus, 0.15);
+      }
+    }
+  }
+
+  @media (max-width: 480px) {
+    .form-container {
+      padding: 1.5rem;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+    }
+  }
+
+
+  ================================================================================
+  FILE: src/features/auth/auth.context.jsx
+  ================================================================================
+
+  import { createContext, useEffect, useState } from "react";
+  import { getMe } from "./services/auth.api.js";
+
+  export const AuthContext = createContext(null);
+
+  export const AuthProvider = ({ children }) => {
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true); // true until we know
+
+    useEffect(() => {
+      let cancelled = false;
+
+      (async () => {
+        try {
+          const data = await getMe();
+          if (!cancelled) setUser(data?.user ?? null);
+        } catch (error) {
+          // 401 = guest, don't spam the console
+          if (error?.response?.status !== 401) {
+            console.error("getMe failed:", error);
+          }
+          if (!cancelled) setUser(null);
+        } finally {
+          if (!cancelled) setLoading(false);
+        }
+      })();
+
+      return () => {
+        cancelled = true;
+      };
+    }, []);
+
+    return (
+      <AuthContext.Provider value={{ user, setUser, loading, setLoading }}>
+        {children}
+      </AuthContext.Provider>
+    );
+  };
+
+
+  ================================================================================
+  FILE: src/features/auth/components/Protected.jsx
+  ================================================================================
+
+  import React from "react";
+  import { Navigate, useLocation } from "react-router";
+  import { useAuth } from "../hooks/useAuth.jsx";
+
+  const Protected = ({ children }) => {
+    const { loading, user } = useAuth();
+    const location = useLocation();
+
+    if (loading) {
+      return (
+        <main>
+          <h1>Loading...</h1>
+        </main>
+      );
+    }
+
+    if (!user) {
+      return <Navigate to="/login" state={{ from: location }} replace />;
+    }
+
+    return children;
+  };
+
+  export default Protected;
+
+
+  ================================================================================
+  FILE: src/features/auth/hooks/useAuth.jsx
+  ================================================================================
+
+  import { useContext } from "react";
+  import { AuthContext } from "../auth.context.jsx";
+  import { login, register, logout } from "../services/auth.api.js";
+
+  export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if (!context) throw new Error("useAuth must be used within an AuthProvider");
+
+    const { user, setUser, loading, setLoading } = context;
+
+    const handleRegister = async ({ name, email, password }) => {
+      setLoading(true);
+      try {
+        const data = await register({ name, email, password });
+        setUser(data.user);
+        return { success: true };
+      } catch (error) {
+        return {
+          success: false,
+          message: error?.response?.data?.message || "Registration failed",
+        };
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const handleLogin = async ({ email, password }) => {
+      setLoading(true);
+      try {
+        const data = await login({ email, password });
+        setUser(data.user);
+        return { success: true };
+      } catch (error) {
+        return {
+          success: false,
+          message: error?.response?.data?.message || "Invalid email or password",
+        };
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const handleLogout = async () => {
+      setLoading(true);
+      try {
+        await logout();
+        setUser(null);
+        return { success: true };
+      } catch {
+        setUser(null); // clear locally even if the server call fails
+        return { success: true };
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    return { user, loading, handleRegister, handleLogin, handleLogout };
+  };
+
+
+  ================================================================================
+  FILE: src/features/auth/pages/Login.jsx
+  ================================================================================
+
+  import React, { useState } from 'react';
+  import "../auth-form.scss";
+  import "../../../styles/button.scss";
+  import { Link, useNavigate } from 'react-router';
+  import { useAuth } from '../hooks/useAuth.jsx';
+
+  const Login = () => {
+
+    const { loading, handleLogin } = useAuth();
+    const navigate = useNavigate();
+
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      await handleLogin({ email, password })
+      navigate('/')
+    }
+
+    if (loading) {    
+      return (<main><h1>Loading...</h1></main>)
+    }
+
+    return (
+      <main>
+        <div className="form-container">
+          <h1>Login</h1>
+          <form onSubmit={handleSubmit}>
+            <div className="input-group">
+              <label htmlFor="email">Email</label>
+              <input type="email" onChange={(e) => { setEmail(e.target.value) }} name="email" id="email" />
+            </div>
+            <div className="input-group">
+              <label htmlFor="password">Password</label>
+              <input type="password" onChange={(e) => { setPassword(e.target.value) }} name="password" id="password" />
+            </div>
+            <button className='button button-primary'>Login</button>
+          </form>
+          <p>Don't have an account? <Link to={"/register"}>Register</Link></p>
+        </div>
+      </main>
+    )
+  }
+
+  export default Login
+
+
+
+  ================================================================================
+  FILE: src/features/auth/pages/Register.jsx
+  ================================================================================
+
+  import React, { useState } from 'react'
+  import { Link, useNavigate } from "react-router";
+  import { useAuth } from '../hooks/useAuth.jsx';
+
+  const Register = () => {
+
+    const { loading, handleRegister } = useAuth();
+    const navigate = useNavigate();
+
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+      await handleRegister({ name, email, password });
+      navigate("/");
+    }
+
+    if (loading) {
+      return (<main><h1>Loading...</h1></main>);
+    }
+
+    return (
+      <main>
+        <div className="form-container">
+          <h1>Register</h1>
+          <form onSubmit={handleSubmit}>
+            <div className="input-group">
+              <label htmlFor="name">Name</label>
+              <input type="text" onChange={(e) => { setName(e.target.value) }} name="name" id="name" />
+            </div>
+            <div className="input-group">
+              <label htmlFor="email">Email</label>
+              <input type="email" onChange={(e) => { setEmail(e.target.value) }} name="email" id="email" />
+            </div>
+            <div className="input-group">
+              <label htmlFor="password">Password</label>
+              <input type="password" onChange={(e) => { setPassword(e.target.value) }} name="password" id="password" />
+            </div>
+            <button className='button button-primary'>Register</button>
+          </form>
+          <p>Already have an account? <Link to={"/login"}>Login</Link></p>
+        </div>
+      </main>
+    )
+  }
+
+  export default Register
+
+
+
+  ================================================================================
+  FILE: src/features/auth/services/auth.api.js
+  ================================================================================
+
+  import axios from "axios";
+
+  const api = axios.create({
+    baseURL: "http://localhost:3000",
+    withCredentials: true,
+  });
+
+  export const register = async ({ name, email, password }) => {
+    const { data } = await api.post("/api/auth/register", { name, email, password });
+    return data;
+  };
+
+  export const login = async ({ email, password }) => {
+    const { data } = await api.post("/api/auth/login", { email, password });
+    return data;
+  };
+
+  export const logout = async () => {
+    const { data } = await api.get("/api/auth/logout");
+    return data;
+  };
+
+  export const getMe = async () => {
+    const { data } = await api.get("/api/auth/me");
+    return data;
+  };
+
+
+  ================================================================================
+  FILE: src/features/interview/home.scss
+  ================================================================================
+
+  @use '../../styles/variables' as *;
+  @use "sass:color";
+
+  /* ═══════════════════════════════════════════
+    Page shell
+    ═══════════════════════════════════════════ */
+
+  .interview-page {
+    min-height: 100vh;
+    background: linear-gradient(135deg, $bg-gradient-start, $bg-gradient-end);
+    padding: 3rem 1rem;
+    font-family: $font-stack;
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+  }
+
+  .interview-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  /* ═══════════════════════════════════════════
+    Header
+    ═══════════════════════════════════════════ */
+
+  .page-header {
+    text-align: center;
+    max-width: 720px;
+    margin: 0 auto;
+
+    .page-title {
+      font-size: 2.25rem;
+      font-weight: 700;
+      color: $text-color;
+      letter-spacing: -0.025em;
+      margin-bottom: 0.5rem;
+      line-height: 1.15;
+    }
+
+    .page-subtitle {
+      font-size: 1rem;
+      color: $label-color;
+      line-height: 1.6;
+    }
+  }
+
+  /* ═══════════════════════════════════════════
+    Grid
+    ═══════════════════════════════════════════ */
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 1.5rem;
+    align-items: stretch;
+  }
+
+  /* ═══════════════════════════════════════════
+    Card
+    ═══════════════════════════════════════════ */
+
+  .card {
+    background: $white;
+    border-radius: 1rem;
+    padding: 1.75rem;
+    border: 1px solid rgba($border-color, 0.5);
+    box-shadow:
+      0 4px 12px -2px rgba(0, 0, 0, 0.06),
+      0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    min-height: 520px;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba($border-color, 0.4);
+
+    .card-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 0.625rem;
+      background: linear-gradient(
+        135deg,
+        rgba($primary-color, 0.12),
+        rgba($primary-color, 0.05)
+      );
+      color: $primary-color;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    h2 {
+      font-size: 1.0625rem;
+      font-weight: 600;
+      color: $text-color;
+      line-height: 1.3;
+      margin: 0;
+    }
+
+    .card-subtitle {
+      font-size: 0.8125rem;
+      color: $label-color;
+      margin-top: 0.125rem;
+      line-height: 1.4;
+    }
+  }
+
+  /* ═══════════════════════════════════════════
+    Field
+    ═══════════════════════════════════════════ */
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    // flex: 1;
+    min-height: 0;
+
+    label {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: $label-color;
+      letter-spacing: 0.01em;
+    }
+
+    textarea {
+      width: 100%;
+      flex: 1;
+      min-height: 140px;
+      padding: 0.75rem 1rem;
+      font-size: 0.9375rem;
+      line-height: 1.55;
+      font-family: inherit;
+      color: $text-color;
+      background: #f9fafb;
+      border: 1.5px solid $border-color;
+      border-radius: 0.625rem;
+      resize: vertical;
+      outline: none;
+      transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+
+      &::placeholder {
+        color: #9ca3af;
       }
 
-      &:focus-visible {
-        outline: 2px solid $input-focus;
-        outline-offset: 2px;
+      &:focus {
+        border-color: $input-focus;
+        background: $white;
+        box-shadow: 0 0 0 3px rgba($input-focus, 0.15);
+      }
+    }
+  }
+
+  .field-hint {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: #9ca3af;
+    padding: 0 0.125rem;
+
+    .hint-right {
+      font-variant-numeric: tabular-nums;
+      flex-shrink: 0;
+    }
+  }
+
+  /* ═══════════════════════════════════════════
+    File drop zone
+    ═══════════════════════════════════════════ */
+
+  .file-drop {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    background: #f9fafb;
+    border: 2px dashed $border-color;
+    border-radius: 0.75rem;
+    cursor: pointer;
+    transition:
+      border-color 0.2s ease,
+      background 0.2s ease,
+      transform 0.1s ease;
+
+    input[type="file"] {
+      display: none;
+    }
+
+    &:hover,
+    &.is-dragover {
+      border-color: $primary-color;
+      background: rgba($primary-color, 0.04);
+    }
+
+    &.is-dragover {
+      transform: scale(1.005);
+    }
+
+    .drop-icon {
+      color: $primary-color;
+      margin-bottom: 0.25rem;
+    }
+
+    .drop-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: $text-color;
+      line-height: 1.4;
+    }
+
+    .drop-hint {
+      font-size: 0.75rem;
+      color: #9ca3af;
+    }
+
+    /* When a file is chosen, switch to horizontal layout */
+    &.has-file {
+      flex-direction: row;
+      justify-content: flex-start;
+      text-align: left;
+      border-style: solid;
+      border-color: $primary-color;
+      background: rgba($primary-color, 0.05);
+      padding: 0.875rem 1rem;
+
+      .file-icon {
+        color: $primary-color;
+        flex-shrink: 0;
       }
 
-      &::file-selector-button {
-        margin-right: 0.75rem;
-        padding: 0.4rem 0.9rem;
-        font-size: 0.8125rem;
+      .file-info {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .file-name {
+        font-size: 0.875rem;
         font-weight: 600;
-        font-family: inherit;
-        color: $white;
-        background: linear-gradient(135deg, $primary-color, color.adjust($primary-color, $lightness: 5%));
+        color: $text-color;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .file-size {
+        font-size: 0.75rem;
+        color: #6b7280;
+        margin-top: 0.125rem;
+      }
+
+      .file-remove {
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        background: transparent;
         border: none;
-        border-radius: 0.4rem;
+        border-radius: 0.375rem;
+        color: #ef4444;
         cursor: pointer;
-        transition: background 0.2s ease, transform 0.1s ease;
+        transition: background 0.15s ease;
 
         &:hover {
-          background: linear-gradient(135deg, $primary-hover, $primary-color);
-        }
-
-        &:active {
-          transform: scale(0.98);
+          background: rgba(239, 68, 68, 0.1);
         }
       }
     }
   }
-}
 
-/* Tablet */
-@media (max-width: 900px) {
-  .home {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-    min-height: auto;
+  /* ═══════════════════════════════════════════
+    Actions & feedback
+    ═══════════════════════════════════════════ */
 
-    .left textarea[name="jobDescription"] {
-      min-height: 260px;
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 0.5rem;
+
+    .button {
+      min-width: 220px;
+      gap: 0.5rem;
     }
   }
-}
 
-/* Mobile */
-@media (max-width: 480px) {
-  .home {
-    gap: 1rem;
+  .error-text {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    color: #b91c1c;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    padding: 0.625rem 0.875rem;
+    border-radius: 0.5rem;
+    margin-top: 1rem;
+    line-height: 1.45;
+  }
 
-    .left,
-    .right {
+  /* ═══════════════════════════════════════════
+    Responsive
+    ═══════════════════════════════════════════ */
+
+  @media (max-width: 900px) {
+    .interview-page {
+      padding: 2rem 1rem;
+    }
+
+    .form-grid {
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
+
+    .card {
+      min-height: 0;
+    }
+
+    .field textarea {
+      min-height: 180px;
+    }
+
+    .page-title {
+      font-size: 1.75rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .interview-page {
+      padding: 1.5rem 0.75rem;
+    }
+
+    .interview-container {
+      gap: 1.25rem;
+    }
+
+    .card {
       padding: 1.25rem;
-      border-radius: 0.75rem;
+      border-radius: 0.875rem;
     }
 
-    .left textarea[name="jobDescription"] {
-      min-height: 200px;
+    .page-title {
+      font-size: 1.5rem;
+    }
+
+    .page-subtitle {
+      font-size: 0.9375rem;
+    }
+
+    .form-actions {
+      justify-content: stretch;
+
+      .button {
+        width: 100%;
+        min-width: 0;
+      }
     }
   }
-}
 
 
-================================================================================
-FILE: src/features/interview/pages/Home.jsx
-================================================================================
+  ================================================================================
+  FILE: src/features/interview/hook/useInterview.jsx
+  ================================================================================
 
-import React from 'react'
-import "../interview.scss"
+  import { generateInterviewReport, getAllInterviewReports, getInterviewReportById } from "../services/interview.api.js";
+  import { useContext } from "react";
+  import { InterviewContext } from "../interview.context.jsx";
 
-const Home = () => {
-  return (
-    <main className='home'>
-      <div className="left">
-        <textarea name="jobDescription" id="jobDescription" placeholder="Enter job description..."></textarea>
-      </div>
-      <div className="right">
-        <div className="input-group">
-          <label htmlFor="resume">Upload Resume</label>
-          <input type="file" name="resume" id="resume" accept=".pdf" />
-        </div>
-        <div className="input-group">
-          <label htmlFor="selfDescription">Upload Self Description</label>
-          <textarea name="selfDescription" id="selfDescription" placeholder="Enter self description..."></textarea>
-        </div>
-      </div>
-    </main>
-  )
-}
+  export const useInterview = () => {
+    const context = useContext(InterviewContext);
 
-export default Home
+    if (!context) {
+      throw new Error("use Interview must be used within an Interview Provider.")
+    }
 
+    const { loading, setLoading, report, setReport, reports, setReports } = context;
 
+    const generateReport = async ({ jobDescription, selfDescription, resumeFile }) => {
+      setLoading(true);
+      try {
+        const response = await generateInterviewReport({ jobDescription, selfDescription, resumeFile });
+        setReport(response.interviewReport)
+      } catch (error) {
+        console.log(error);
+      }
+      finally {
+        setLoading(false)
+      }
+    }
 
-================================================================================
-FILE: src/index.css
-================================================================================
+    const getReportById = async (interviewId) => {
+      setLoading(true);
+      try {
+        const response = await getInterviewReportById(interviewId);
+        setReport(response.interviewReport)
+      } catch (error) {
+        console.log(error);
+      }
+      finally {
+        setLoading(false)
+      }
+    }
 
+    const getReports = async (interviewId) => {
+      setLoading(true);
+      try {
+        const response = await getAllInterviewReports();
+        setReport(response.interviewReports)
+      } catch (error) {
+        console.log(error);
+      }
+      finally {
+        setLoading(false)
+      }
+    }
 
+    return { loading, report, reports, generateReport, getReportById, getReports }
 
-
-================================================================================
-FILE: src/main.jsx
-================================================================================
-
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import './index.css';
-import './styles/style.scss';
-import App from './App.jsx';
-
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
-
-
-================================================================================
-FILE: src/styles/_variables.scss
-================================================================================
-
-$primary-color: #4f46e5;
-$primary-hover: #4338ca;
-
-$text-color: #1f2937;
-$label-color: #374151;
-$border-color: #d1d5db;
-$input-focus: #6366f1;
-
-$white: #ffffff;
-
-$bg-gradient-start: #eef2ff;
-$bg-gradient-end: #e0e7ff;
-
-$font-stack: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-
-
-================================================================================
-FILE: src/styles/button.scss
-================================================================================
-
-@use './variables' as *;
-@use "sass:color";
-
-.button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.5rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  font-family: inherit;
-  line-height: 1.5;
-  border: none;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: background 0.2s ease,
-    transform 0.1s ease,
-    box-shadow 0.2s ease;
-  user-select: none;
-
-  &:active {
-    transform: scale(0.98);
   }
 
-  &:focus-visible {
-    outline: 2px solid $primary-color;
-    outline-offset: 2px;
+
+  ================================================================================
+  FILE: src/features/interview/interview.context.jsx
+  ================================================================================
+
+  import { Children, createContext, useState } from "react";
+
+  export const InterviewContext = createContext();
+
+
+  export const InterviewProvider = ({ Children }) => {
+    const [loading, setLoading] = useState(false);
+    const [report, setReport] = useState(null);
+    const [reports, setReports] = useState([]);
+
+    return (
+      <InterviewContext.Provider value={{ loading, setLoading, report, setReport, reports, setReports }}>
+        {Children}
+      </InterviewContext.Provider>
+    )
   }
-}
 
-.button-primary {
-  width: 100%;
-  color: $white;
 
-  background: linear-gradient(135deg,
-      $primary-color,
-      color.adjust($primary-color, $lightness: 5%));
+  ================================================================================
+  FILE: src/features/interview/interview.scss
+  ================================================================================
 
-  box-shadow:
-    0 4px 6px -1px rgba($primary-color, 0.3),
-    0 2px 4px -1px rgba($primary-color, 0.2);
+  @use '../../styles/variables' as *;
+  @use "sass:color";
 
-  &:hover {
+  /* ═══════════════════════════════════════════════════
+    Local theme extensions (built on top of shared vars)
+    ═══════════════════════════════════════════════════ */
+
+  $surface: $white;
+  $surface-subtle: #f9fafb;
+  $surface-hover: color.adjust($bg-gradient-start, $lightness: 3%);
+
+  $text-strong: $text-color;
+  $text-body: $label-color;
+  $text-muted: #6b7280;
+  $text-dim: #9ca3af;
+
+  $hairline: rgba($border-color, 0.6);
+  $hairline-strong: $border-color;
+
+  $accent: $primary-color;
+  $accent-soft: rgba($primary-color, 0.08);
+  $accent-soft-2: rgba($primary-color, 0.14);
+  $accent-ring: rgba($primary-color, 0.2);
+
+  $severity-high: #dc2626;
+  $severity-medium: #d97706;
+  $severity-low: #16a34a;
+
+  $shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+  $shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.06),
+    0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  $shadow-lg: 0 10px 20px -8px rgba(0, 0, 0, 0.08),
+    0 4px 8px -4px rgba(0, 0, 0, 0.04);
+
+  $radius-sm: 0.5rem;
+  $radius-md: 0.75rem;
+  $radius-lg: 1rem;
+
+  /* ═══════════════════════════════════════════════════
+    Shell
+    ═══════════════════════════════════════════════════ */
+
+  .interview-dashboard {
+    display: grid;
+    grid-template-columns: 240px 1fr 300px;
+    min-height: 100vh;
+    background: linear-gradient(135deg, $bg-gradient-start, $bg-gradient-end);
+    color: $text-body;
+    font-family: $font-stack;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+  }
+
+  /* ═══════════════════════════════════════════════════
+    Left sidebar
+    ═══════════════════════════════════════════════════ */
+
+  .dashboard-sidebar {
+    padding: 2rem 1rem;
+    background: rgba($surface, 0.6);
+    backdrop-filter: blur(8px);
+    border-right: 1px solid $hairline;
+  }
+
+  .sidebar-label {
+    margin: 0 0 0.875rem 0.75rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: $text-dim;
+  }
+
+  .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .nav-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    width: 100%;
+    padding: 0.625rem 0.75rem;
+    font-family: inherit;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-align: left;
+    color: $text-muted;
+    background: transparent;
+    border: none;
+    border-radius: $radius-sm;
+    cursor: pointer;
+    transition:
+      color 0.18s ease,
+      background 0.18s ease,
+      transform 0.18s ease;
+
+    .nav-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      color: inherit;
+    }
+
+    &:hover {
+      color: $text-strong;
+      background: rgba($primary-color, 0.05);
+    }
+
+    &.is-active {
+      color: $accent;
+      background: $accent-soft;
+      font-weight: 600;
+
+      &::before {
+        content: "";
+        position: absolute;
+        left: -1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 3px;
+        height: 60%;
+        background: $accent;
+        border-radius: 0 3px 3px 0;
+      }
+    }
+  }
+
+  /* ═══════════════════════════════════════════════════
+    Main content
+    ═══════════════════════════════════════════════════ */
+
+  .dashboard-main {
+    padding: 2rem 2.25rem;
+    overflow-y: auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  .main-header {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .main-title {
+    margin: 0;
+    font-size: 1.375rem;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    color: $text-strong;
+  }
+
+  .count-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: $accent;
+    background: $accent-soft;
+    border: 1px solid $accent-soft-2;
+    border-radius: 999px;
+  }
+
+  /* ═══════════════════════════════════════════════════
+    Question accordion
+    ═══════════════════════════════════════════════════ */
+
+  .question-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .question-card {
+    background: $surface;
+    border: 1px solid $hairline;
+    border-radius: $radius-md;
+    box-shadow: $shadow-sm;
+    overflow: hidden;
+    transition:
+      box-shadow 0.2s ease,
+      border-color 0.2s ease,
+      transform 0.2s ease;
+
+    &:hover {
+      border-color: rgba($primary-color, 0.25);
+      box-shadow: $shadow-md;
+      transform: translateY(-1px);
+    }
+
+    &.is-open {
+      border-color: rgba($primary-color, 0.35);
+      box-shadow: $shadow-md;
+
+      &:hover {
+        transform: none;
+      }
+    }
+  }
+
+  .question-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    padding: 1rem 1.125rem;
+    font-family: inherit;
+    font-size: 0.9375rem;
+    text-align: left;
+    color: inherit;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
+
+  .q-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    min-width: 36px;
+    height: 28px;
+    padding: 0 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: $accent;
+    background: $accent-soft;
+    border-radius: $radius-sm;
+    letter-spacing: 0.02em;
+    transition: background 0.18s ease, color 0.18s ease;
+  }
+
+  .question-card.is-open .q-badge {
+    color: $white;
     background: linear-gradient(135deg,
-        $primary-hover,
-        $primary-color );
-
-    box-shadow:
-      0 10px 15px -3px rgba($primary-color, 0.3),
-      0 4px 6px -2px rgba($primary-color, 0.2);
-
-    transform: translateY(-1px);
+        $primary-color,
+        color.adjust($primary-color, $lightness: 5%));
   }
 
-  &:active {
-    transform: translateY(0) scale(0.98);
+  .q-text {
+    flex: 1;
+    min-width: 0;
+    color: $text-strong;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  .chevron {
+    flex-shrink: 0;
+    color: $text-dim;
+    transition: transform 0.22s ease, color 0.15s ease;
+  }
+
+  .question-card.is-open .chevron {
+    transform: rotate(180deg);
+    color: $accent;
+  }
+
+  .question-body {
+    padding: 0 1.125rem 1.125rem 4.25rem;
+    color: $text-muted;
+    font-size: 0.875rem;
+    line-height: 1.65;
+    animation: slideDown 0.22s ease;
+
+    p {
+      margin: 0;
+    }
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* ═══════════════════════════════════════════════════
+    Right aside
+    ═══════════════════════════════════════════════════ */
+
+  .dashboard-aside {
+    padding: 2rem 1.5rem;
+    background: rgba($surface, 0.6);
+    backdrop-filter: blur(8px);
+    border-left: 1px solid $hairline;
+  }
+
+  .aside-label {
+    margin: 0 0 1rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: $text-dim;
+  }
+
+  /* ─── Match score ─── */
+
+  .match-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-bottom: 1.75rem;
+    margin-bottom: 1.75rem;
+    border-bottom: 1px solid $hairline;
+
+    .aside-label {
+      align-self: flex-start;
+      margin-bottom: 1.25rem;
+    }
+  }
+
+  .score-ring {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    margin-bottom: 1rem;
+
+    svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .ring-bg {
+      fill: none;
+      stroke: rgba($primary-color, 0.08);
+      stroke-width: 8;
+    }
+
+    .ring-fg {
+      fill: none;
+      stroke: $severity-low;
+      stroke-width: 8;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      filter: drop-shadow(0 2px 6px rgba($severity-low, 0.35));
+    }
+
+    .score-value {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: $text-strong;
+      pointer-events: none;
+    }
+
+    .score-num {
+      font-size: 2.5rem;
+      font-weight: 700;
+      letter-spacing: -0.035em;
+      line-height: 1;
+      color: $text-strong;
+    }
+
+    .score-pct {
+      margin-left: 0.125rem;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: $text-muted;
+    }
+  }
+
+  .score-caption {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: $severity-low;
+    text-align: center;
+  }
+
+  /* ─── Skill gaps ─── */
+
+  .skill-gaps {
+    .gap-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .gap-item {
+      padding: 0.625rem 0.875rem;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      line-height: 1.45;
+      border-radius: $radius-sm;
+      border: 1px solid transparent;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+      &:hover {
+        transform: translateX(2px);
+      }
+    }
+
+    .gap-high {
+      color: color.adjust($severity-high, $lightness: -5%);
+      background: rgba($severity-high, 0.08);
+      border-color: rgba($severity-high, 0.25);
+    }
+
+    .gap-medium {
+      color: color.adjust($severity-medium, $lightness: -8%);
+      background: rgba($severity-medium, 0.1);
+      border-color: rgba($severity-medium, 0.3);
+    }
+
+    .gap-low {
+      color: color.adjust($severity-low, $lightness: -6%);
+      background: rgba($severity-low, 0.08);
+      border-color: rgba($severity-low, 0.25);
+    }
+  }
+
+  /* ═══════════════════════════════════════════════════
+    Responsive
+    ═══════════════════════════════════════════════════ */
+
+  @media (max-width: 1100px) {
+    .interview-dashboard {
+      grid-template-columns: 200px 1fr;
+    }
+
+    .dashboard-aside {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem;
+      align-items: start;
+      padding: 1.75rem 2rem;
+      border-left: none;
+      border-top: 1px solid $hairline;
+    }
+
+    .match-section {
+      padding-bottom: 0;
+      margin-bottom: 0;
+      border-bottom: none;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .interview-dashboard {
+      grid-template-columns: 1fr;
+    }
+
+    .dashboard-sidebar {
+      padding: 1.25rem 1rem;
+      border-right: none;
+      border-bottom: 1px solid $hairline;
+    }
+
+    .sidebar-nav {
+      flex-direction: row;
+      overflow-x: auto;
+      gap: 0.5rem;
+      scrollbar-width: none;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+
+    .nav-item {
+      white-space: nowrap;
+      padding: 0.5rem 0.875rem;
+      font-size: 0.8125rem;
+
+      &.is-active::before {
+        display: none;
+      }
+    }
+
+    .dashboard-main {
+      padding: 1.5rem 1rem;
+    }
+
+    .main-title {
+      font-size: 1.125rem;
+    }
+
+    .question-header {
+      gap: 0.75rem;
+      padding: 0.875rem;
+      font-size: 0.875rem;
+    }
+
+    .question-body {
+      padding: 0 0.875rem 1rem 3.5rem;
+    }
+
+    .dashboard-aside {
+      grid-template-columns: 1fr;
+      gap: 1.75rem;
+      padding: 1.5rem 1rem;
+    }
+
+    .score-ring {
+      width: 120px;
+      height: 120px;
+
+      .score-num {
+        font-size: 2rem;
+      }
+    }
+  }
+
+  /* ═══════════════════════════════════════════════════
+    Roadmap
+    ═══════════════════════════════════════════════════ */
+
+  .roadmap {
+    width: 100%;
+    max-width: 780px;
+  }
+
+  /* ─── Summary panel ─── */
+
+  .roadmap-summary {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+    background: $surface;
+    border: 1px solid $hairline;
+    border-radius: $radius-lg;
+    box-shadow: $shadow-sm;
+  }
+
+  .summary-ring {
+    position: relative;
+    flex-shrink: 0;
+    width: 68px;
+    height: 68px;
+
+    svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .summary-ring-bg {
+      fill: none;
+      stroke: rgba($primary-color, 0.1);
+      stroke-width: 4;
+    }
+
+    .summary-ring-fg {
+      fill: none;
+      stroke: $primary-color;
+      stroke-width: 4;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .summary-ring-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: $text-strong;
+      letter-spacing: -0.02em;
+    }
+  }
+
+  .summary-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .summary-title {
+    margin: 0 0 0.125rem;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: $text-strong;
+    letter-spacing: -0.01em;
+  }
+
+  .summary-sub {
+    margin: 0 0 0.75rem;
+    font-size: 0.8125rem;
+    color: $text-muted;
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba($primary-color, 0.08);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(135deg,
+        $primary-color,
+        color.adjust($primary-color, $lightness: 8%));
+    border-radius: 999px;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 0 10px rgba($primary-color, 0.3);
+  }
+
+  /* ─── Timeline list ─── */
+
+  .roadmap-list {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .roadmap-item {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    gap: 1rem;
+    position: relative;
+  }
+
+  /* ─── Timeline node column ─── */
+
+  .roadmap-node {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .node-circle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: $surface;
+    border: 2px solid $hairline-strong;
+    color: $text-dim;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    transition:
+      border-color 0.2s ease,
+      background 0.2s ease,
+      color 0.2s ease,
+      box-shadow 0.2s ease;
+    z-index: 1;
+  }
+
+  .node-line {
+    flex: 1;
+    width: 2px;
+    margin: 0.25rem 0;
+    background: linear-gradient(to bottom,
+        rgba($primary-color, 0.2),
+        rgba($primary-color, 0.05));
+  }
+
+  /* Node — Done */
+  .roadmap-item.status-done .node-circle {
+    color: $white;
+    border-color: $severity-low;
+    background: linear-gradient(135deg,
+        $severity-low,
+        color.adjust($severity-low, $lightness: -8%));
+    box-shadow: 0 4px 10px -2px rgba($severity-low, 0.35);
+  }
+
+  /* Node — In Progress */
+  .roadmap-item.status-in-progress .node-circle {
+    border-color: $primary-color;
+    background: $surface;
+    box-shadow: 0 0 0 4px rgba($primary-color, 0.12);
+  }
+
+  .node-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: $primary-color;
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+
+    0%,
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    50% {
+      transform: scale(1.25);
+      opacity: 0.6;
+    }
+  }
+
+  /* Node — Pending */
+  .roadmap-item.status-pending .node-circle {
+    border-color: $hairline-strong;
+    background: $surface-subtle;
+    color: $text-muted;
+  }
+
+  /* ─── Card ─── */
+
+  .roadmap-card {
+    position: relative;
+    margin-bottom: 0.75rem;
+    background: $surface;
+    border: 1px solid $hairline;
+    border-left: 3px solid $hairline-strong;
+    border-radius: $radius-md;
+    box-shadow: $shadow-sm;
+    overflow: hidden;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      transform 0.2s ease;
+
+    &:hover {
+      box-shadow: $shadow-md;
+      transform: translateX(2px);
+    }
+  }
+
+  .roadmap-item.status-done .roadmap-card {
+    border-left-color: $severity-low;
+  }
+
+  .roadmap-item.status-in-progress .roadmap-card {
+    border-left-color: $primary-color;
+    box-shadow:
+      0 4px 12px -2px rgba($primary-color, 0.15),
+      0 2px 4px -1px rgba($primary-color, 0.08);
+  }
+
+  .roadmap-item.status-pending .roadmap-card {
+    border-left-color: $border-color;
+    opacity: 0.85;
+  }
+
+  .roadmap-card.is-open {
+    transform: none;
+
+    &:hover {
+      transform: none;
+    }
+  }
+
+  /* ─── Card header ─── */
+
+  .roadmap-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+    padding: 1rem 1.125rem;
+    font-family: inherit;
+    text-align: left;
+    color: inherit;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
+
+  .roadmap-heading {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .roadmap-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .roadmap-phase {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: $text-dim;
+  }
+
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.5rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    border-radius: 999px;
+    border: 1px solid transparent;
+
+    &.status-done {
+      color: color.adjust($severity-low, $lightness: -8%);
+      background: rgba($severity-low, 0.1);
+      border-color: rgba($severity-low, 0.25);
+    }
+
+    &.status-in-progress {
+      color: $accent;
+      background: $accent-soft;
+      border-color: $accent-soft-2;
+    }
+
+    &.status-pending {
+      color: $text-muted;
+      background: rgba($border-color, 0.25);
+      border-color: $hairline;
+    }
+  }
+
+  .roadmap-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: $text-strong;
+    line-height: 1.35;
+    letter-spacing: -0.005em;
+  }
+
+  .roadmap-task-count {
+    margin: 0.25rem 0 0;
+    font-size: 0.75rem;
+    color: $text-muted;
+  }
+
+  .roadmap-card.is-open .chevron {
+    transform: rotate(180deg);
+    color: $accent;
+  }
+
+  /* ─── Tasks ─── */
+
+  .roadmap-tasks {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    padding: 0 1.125rem 1.125rem 1.125rem;
+    margin: 0;
+    list-style: none;
+    border-top: 1px dashed $hairline;
+    padding-top: 1rem;
+    animation: slideDown 0.22s ease;
+  }
+
+  .roadmap-task {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: $text-body;
+  }
+
+  .task-dot {
+    flex-shrink: 0;
+    width: 6px;
+    height: 6px;
+    margin-top: 0.55em;
+    border-radius: 50%;
+    background: $accent;
+    opacity: 0.65;
+  }
+
+  /* ─── Responsive ─── */
+
+  @media (max-width: 720px) {
+    .roadmap-summary {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 1rem;
+      padding: 1.125rem;
+    }
+
+    .summary-ring {
+      align-self: flex-start;
+      width: 60px;
+      height: 60px;
+
+      .summary-ring-text {
+        font-size: 0.8125rem;
+      }
+    }
+
+    .roadmap-item {
+      grid-template-columns: 32px 1fr;
+      gap: 0.75rem;
+    }
+
+    .node-circle {
+      width: 28px;
+      height: 28px;
+      font-size: 0.75rem;
+    }
+
+    .roadmap-header {
+      padding: 0.875rem 1rem;
+    }
+
+    .roadmap-title {
+      font-size: 0.9375rem;
+    }
+  }
+
+
+  ================================================================================
+  FILE: src/features/interview/pages/Home.jsx
+  ================================================================================
+
+  import { useState } from "react";
+  import "../home.scss";
+  import { useInterview } from "../hook/useInterview";
+  import { useNavigate } from "react-router";
+
+  const Home = () => {
+    const { loading, generateReport } = useInterview();
+    const [jobDescription, setJobDescription] = useState();
+    const [selfDescription, setSelfDescription] = useState();
+    const resumeInputRef = useRef();
+    const navigate = useNavigate();
+
+    const handleGenerateReport = async () => {
+      const resumeFile = resumeInputRef.current.files[0];
+      const data = await generateReport({ jobDescription, selfDescription, resumeFile })
+      navigate(`/interview/${data._id}`)
+    }
+
+    return (
+      <div className="interview-page">
+        <div className="interview-container">
+          <header className="page-header">
+            <h1 className="page-title">Interview Preparation</h1>
+            <p className="page-subtitle">
+              Paste the job description and upload your resume. Our AI will generate
+              a tailored report with interview questions, skill gaps, and a
+              preparation plan.
+            </p>
+          </header>
+
+          <form noValidate>
+            <div className="form-grid">
+              <div className="card">
+                <div className="card-header">
+                  <div className="card-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                      strokeLinejoin="round">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                      <polyline points="14 2 14 8 20 8" />
+                      <line x1="16" y1="13" x2="8" y2="13" />
+                      <line x1="16" y1="17" x2="8" y2="17" />
+                      <polyline points="10 9 9 9 8 9" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h2>Job Description</h2>
+                    <p className="card-subtitle">Paste the full role description</p>
+                  </div>
+                </div>
+
+                <div className="field" style={{ flex: 1 }}>
+                  <label htmlFor="jobDescription">Description</label>
+                  <textarea
+                    id="jobDescription"
+                    name="jobDescription"
+                    onChange={(e) => setJobDescription(e.target.value)}
+                    placeholder="e.g. We are looking for a MERN Stack Developer with 2+ years of experience building scalable web applications..."
+                  ></textarea>
+                  <div className="field-hint">
+                    <span>Include responsibilities, required skills &amp; qualifications</span>
+                    <span className="hint-right">0 chars</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="card">
+                <div className="card-header">
+                  <div className="card-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                      strokeLinejoin="round">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h2>Your Details</h2>
+                    <p className="card-subtitle">Resume and a short self description</p>
+                  </div>
+                </div>
+
+                <div className="field">
+                  <label>Resume (PDF)</label>
+
+                  <label className="file-drop">
+                    <input type="file" accept=".pdf,application/pdf" ref={resumeInputRef} />
+
+                    <svg className="drop-icon" width="26" height="26" viewBox="0 0 24 24"
+                      fill="none" stroke="currentColor" strokeWidth="2"
+                      strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="16 16 12 12 8 16" />
+                      <line x1="12" y1="12" x2="12" y2="21" />
+                      <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" />
+                    </svg>
+
+                    <p className="drop-title">Drop your PDF here or click to browse</p>
+                    <p className="drop-hint">PDF only · Max 3.00 MB</p>
+                  </label>
+                </div>
+
+                {/* <div className="field" hidden>
+                  <label>Resume (PDF)</label>
+
+                  <label className="file-drop has-file">
+                    <input type="file" accept=".pdf,application/pdf" />
+
+                    <svg className="file-icon" width="22" height="22" viewBox="0 0 24 24"
+                      fill="none" stroke="currentColor" strokeWidth="2"
+                      strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
+                      <polyline points="13 2 13 9 20 9" />
+                    </svg>
+
+                    <div className="file-info">
+                      <p className="file-name">retesh-kumar-sharma-resume.pdf</p>
+                      <p className="file-size">248.4 KB</p>
+                    </div>
+
+                    <button type="button" className="file-remove" aria-label="Remove file">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                        strokeLinejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                      </svg>
+                    </button>
+                  </label>
+                </div> */}
+
+                <div className="field" style={{ flex: 1 }}>
+                  <label htmlFor="selfDescription">Self Description</label>
+                  <textarea
+                    id="selfDescription"
+                    name="selfDescription"
+                    onChange={(e) => setSelfDescription(e.target.value)}
+                    placeholder="Briefly describe your experience, strengths and career goals..."
+                  ></textarea>
+                  <div className="field-hint">
+                    <span>Optional, but improves the report</span>
+                    <span className="hint-right">0 chars</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <p className="error-text" hidden>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+              Please upload your resume.
+            </p>
+
+            <div className="form-actions">
+              <button type="submit" className="button button-primary" onClick={handleGenerateReport}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                  strokeLinejoin="round">
+                  <line x1="22" y1="2" x2="11" y2="13" />
+                  <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                </svg>
+                Generate Report
+              </button>
+            </div>
+          </form>
+
+        </div>
+      </div>
+    );
+  };
+
+  export default Home;
+
+
+  ================================================================================
+  FILE: src/features/interview/pages/Interview.jsx
+  ================================================================================
+
+  import React, { useMemo, useState } from "react";
+  import {
+    FiCode,
+    FiMessageSquare,
+    FiCompass,
+    FiChevronDown,
+    FiCheckCircle,
+    FiCircle,
+  } from "react-icons/fi";
+  import "../interview.scss";
+  import { useInterview } from "../hook/useInterview";
+
+
+  const SECTIONS = [
+    { id: "technical", label: "Technical Questions", Icon: FiCode },
+    { id: "behavioral", label: "Behavioral Questions", Icon: FiMessageSquare },
+    { id: "roadmap", label: "Road Map", Icon: FiCompass },
+  ];
+
+  const TECHNICAL_QUESTIONS = [
+    {
+      question:
+        "Explain the Node.js event loop and how it handles asynchronous I/O operations.",
+      answer:
+        "Node's event loop has six phases (timers, pending callbacks, idle/prepare, poll, check, close). I/O is offloaded to libuv's thread pool, and completed callbacks are queued back into the loop. This is how a single-threaded runtime handles thousands of concurrent connections without blocking.",
+    },
+    {
+      question:
+        "How do you optimize a MongoDB aggregation pipeline for high-volume data?",
+      answer:
+        "Push $match and $project as early as possible to reduce the working set, add compound indexes that match the $match + $sort stages, use $lookup only when necessary, and set allowDiskUse: false to catch inefficient stages. Also profile with explain('executionStats') to find COLLSCANs.",
+    },
+    {
+      question:
+        "Can you describe the Cache-Aside pattern and when you would use Redis in a Node.js application?",
+      answer:
+        "Cache-aside loads data on demand: check cache first, on miss query the DB and write the result to cache with a TTL. Use Redis for session storage, rate limiting, hot read paths (product listings), and pub/sub fan-out. Invalidate on write to avoid stale data.",
+    },
+    {
+      question:
+        "What are the challenges of migrating a monolithic application to a modular service-based architecture?",
+      answer:
+        "Data consistency across services (sagas vs 2PC), distributed transactions, service discovery, network latency, observability (tracing across services), and deployment coordination. Start with a modular monolith — extract services only when team size or scale forces it.",
+    },
+  ];
+
+  const BEHAVIORAL_QUESTIONS = [
+    {
+      question: "Tell me about a time you disagreed with a technical decision.",
+      answer:
+        "Use STAR: describe the context, what the proposed decision was, how you raised concerns with data (benchmarks, trade-offs), how the team resolved it, and what you learned. Emphasize you disagreed on the idea, not the person.",
+    },
+    {
+      question: "Describe a situation where you had to meet a tight deadline.",
+      answer:
+        "Pick a real project. Explain how you scoped the MVP, communicated trade-offs with stakeholders, cut non-essential features, and delivered. Mention what you'd do differently next time.",
+    },
+    {
+      question: "How do you handle feedback you disagree with?",
+      answer:
+        "Ask clarifying questions first, restate the feedback to confirm understanding, separate intent from delivery, then decide whether to act. If you disagree, explain your reasoning with evidence — don't just comply or dismiss.",
+    },
+    {
+      question: "Tell me about a time you mentored a junior engineer.",
+      answer:
+        "Focus on outcomes: what the junior learned, how you structured the learning (pair programming, code reviews, small tasks), and how they grew. Mentoring is measured by their success, not your effort.",
+    },
+  ];
+
+  const ROADMAP = [
+    {
+      phase: "Week 1",
+      title: "Fundamentals Refresh",
+      status: "done",
+      tasks: [
+        "Revise Node.js event loop and async patterns",
+        "Practice 5 MongoDB aggregation problems",
+        "Skim Redis caching patterns (cache-aside, write-through)",
+      ],
+    },
+    {
+      phase: "Week 2",
+      title: "System Design Basics",
+      status: "in-progress",
+      tasks: [
+        "Read 'Designing Data-Intensive Applications' Ch. 1–4",
+        "Practice 3 distributed systems case studies (chat, feed, cart)",
+        "Diagram a service-based migration for a monolith",
+      ],
+    },
+    {
+      phase: "Week 3",
+      title: "DevOps & Deployment",
+      status: "pending",
+      tasks: [
+        "Build a CI/CD pipeline with GitHub Actions",
+        "Dockerize a Node.js + Mongo app end-to-end",
+        "Learn basic Kubernetes concepts (pods, services, ingress)",
+      ],
+    },
+    {
+      phase: "Week 4",
+      title: "Mock Interviews & Polish",
+      status: "pending",
+      tasks: [
+        "3 mock technical interviews with peers",
+        "2 mock behavioral interviews (recorded)",
+        "Final resume pass — quantify every bullet point",
+      ],
+    },
+  ];
+
+  const MATCH_SCORE = 88;
+
+  const SKILL_GAPS = [
+    { skill: "Message Queues (Kafka/RabbitMQ)", severity: "high" },
+    { skill: "Advanced Docker & CI/CD Pipelines", severity: "medium" },
+    { skill: "Distributed Systems Design", severity: "medium" },
+    { skill: "Production-level Redis management", severity: "low" },
+  ];
+
+  const SECTION_META = {
+    technical: {
+      title: "Technical Questions",
+      data: TECHNICAL_QUESTIONS,
+      badge: (n) => `${n} questions`,
+    },
+    behavioral: {
+      title: "Behavioral Questions",
+      data: BEHAVIORAL_QUESTIONS,
+      badge: (n) => `${n} questions`,
+    },
+    roadmap: {
+      title: "Preparation Road Map",
+      data: ROADMAP,
+      badge: (n) => `${n} phases`,
+    },
+  };
+
+  const Interview = () => {
+    const { report } = useInterview();
+
+    console.log("Report:", report);
+    
+    const [activeSection, setActiveSection] = useState("technical");
+    const [openIndex, setOpenIndex] = useState(null);
+
+    const toggleQuestion = (i) =>
+      setOpenIndex((prev) => (prev === i ? null : i));
+
+    const switchSection = (id) => {
+      setActiveSection(id);
+      setOpenIndex(null);
+    };
+
+    const meta = SECTION_META[activeSection];
+    const list = meta.data;
+
+    const radius = 52;
+    const circumference = 2 * Math.PI * radius;
+    const offset = circumference * (1 - MATCH_SCORE / 100);
+
+    const roadmapProgress = useMemo(() => {
+      if (activeSection !== "roadmap") return null;
+      const done = ROADMAP.filter((p) => p.status === "done").length;
+      return { done, total: ROADMAP.length };
+    }, [activeSection]);
+
+    return (
+      <div className="interview-dashboard">
+
+        <aside className="dashboard-sidebar">
+          <p className="sidebar-label">Sections</p>
+
+          <nav className="sidebar-nav">
+            {SECTIONS.map(({ id, label, Icon }) => (
+              <button
+                key={id}
+                type="button"
+                className={`nav-item ${activeSection === id ? "is-active" : ""}`}
+                onClick={() => switchSection(id)}
+              >
+                <span className="nav-icon">
+                  <Icon size={15} />
+                </span>
+                <span>{label}</span>
+              </button>
+            ))}
+          </nav>
+        </aside>
+
+        <main className="dashboard-main">
+          <header className="main-header">
+            <h2 className="main-title">{meta.title}</h2>
+            <span className="count-badge">{meta.badge(list.length)}</span>
+          </header>
+
+          {(activeSection === "technical" || activeSection === "behavioral") && (
+            <div className="question-list">
+              {list.map((item, i) => {
+                const isOpen = openIndex === i;
+                return (
+                  <article
+                    key={i}
+                    className={`question-card ${isOpen ? "is-open" : ""}`}
+                  >
+                    <button
+                      type="button"
+                      className="question-header"
+                      onClick={() => toggleQuestion(i)}
+                      aria-expanded={isOpen}
+                    >
+                      <span className="q-badge">Q{i + 1}</span>
+                      <span className="q-text">{item.question}</span>
+                      <FiChevronDown size={18} className="chevron" />
+                    </button>
+
+                    {isOpen && (
+                      <div className="question-body">
+                        <p>{item.answer}</p>
+                      </div>
+                    )}
+                  </article>
+                );
+              })}
+            </div>
+          )}
+
+          {activeSection === "roadmap" && (
+            <div className="roadmap">
+              {roadmapProgress && (
+                <div className="roadmap-progress">
+                  <div className="progress-bar">
+                    <div
+                      className="progress-fill"
+                      style={{
+                        width: `${(roadmapProgress.done / roadmapProgress.total) * 100}%`,
+                      }}
+                    />
+                  </div>
+                  <span className="progress-label">
+                    {roadmapProgress.done} of {roadmapProgress.total} phases complete
+                  </span>
+                </div>
+              )}
+
+              <ol className="roadmap-list">
+                {list.map((phase, i) => {
+                  const isOpen = openIndex === i;
+                  const isDone = phase.status === "done";
+                  const isInProgress = phase.status === "in-progress";
+
+                  return (
+                    <li
+                      key={i}
+                      className={`roadmap-item status-${phase.status}`}
+                    >
+                      <div className="roadmap-marker">
+                        {isDone ? (
+                          <FiCheckCircle size={18} />
+                        ) : (
+                          <FiCircle size={18} />
+                        )}
+                      </div>
+
+                      <div className="roadmap-content">
+                        <button
+                          type="button"
+                          className="roadmap-header"
+                          onClick={() => toggleQuestion(i)}
+                          aria-expanded={isOpen}
+                        >
+                          <div className="roadmap-heading">
+                            <span className="roadmap-phase">{phase.phase}</span>
+                            <h3 className="roadmap-title">{phase.title}</h3>
+                          </div>
+
+                          <span className={`status-chip status-${phase.status}`}>
+                            {isDone
+                              ? "Done"
+                              : isInProgress
+                                ? "In Progress"
+                                : "Pending"}
+                          </span>
+
+                          <FiChevronDown size={18} className="chevron" />
+                        </button>
+
+                        {isOpen && (
+                          <ul className="roadmap-tasks">
+                            {phase.tasks.map((task, j) => (
+                              <li key={j} className="roadmap-task">
+                                {task}
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    </li>
+                  );
+                })}
+              </ol>
+            </div>
+          )}
+        </main>
+
+        <aside className="dashboard-aside">
+          <section className="match-section">
+            <p className="aside-label">Match Score</p>
+
+            <div className="score-ring">
+              <svg viewBox="0 0 120 120">
+                <circle className="ring-bg" cx="60" cy="60" r={radius} />
+                <circle
+                  className="ring-fg"
+                  cx="60"
+                  cy="60"
+                  r={radius}
+                  strokeDasharray={circumference}
+                  strokeDashoffset={offset}
+                />
+              </svg>
+
+              <div className="score-value">
+                <span className="score-num">{MATCH_SCORE}</span>
+                <span className="score-pct">%</span>
+              </div>
+            </div>
+
+            <p className="score-caption">Strong match for this role</p>
+          </section>
+
+          <section className="skill-gaps">
+            <p className="aside-label">Skill Gaps</p>
+
+            <ul className="gap-list">
+              {SKILL_GAPS.map((g, i) => (
+                <li key={i} className={`gap-item gap-${g.severity}`}>
+                  {g.skill}
+                </li>
+              ))}
+            </ul>
+          </section>
+        </aside>
+      </div>
+    );
+  };
+
+  export default Interview;
+
+
+  ================================================================================
+  FILE: src/features/interview/services/interview.api.js
+  ================================================================================
+
+  import axios from "axios";
+
+  const api = axios.create({
+    baseURL: "http://localhost:3000",
+    withCredentials: true,
+  });
+
+  export const generateInterviewReport = async ({ jobDescription, selfDescription, resumeFile }) => {
+    const formData = new FormData();
+
+    formData.append("jobDescription", jobDescription);
+    formData.append("selfDescription", selfDescription);
+    formData.append("resume", resumeFile);
+
+    const { data } = await api.post("/api/interviewReport", formData);
+
+    return data;
+  };
+
+  export const getInterviewReportById = async (interviewId) => {
+    const { data } = await api.get(`/api/interviewReport/${interviewId}`);
+
+    return data;
+  };
+
+  export const getAllInterviewReports = async () => {
+    const { data } = await api.get("/api/interviewReport");
+
+    return data;
+  };
+
+
+  ================================================================================
+  FILE: src/index.css
+  ================================================================================
+
+
+
+
+  ================================================================================
+  FILE: src/main.jsx
+  ================================================================================
+
+  import { StrictMode } from 'react';
+  import { createRoot } from 'react-dom/client';
+  import './index.css';
+  import './styles/style.scss';
+  import App from './App.jsx';
+
+  createRoot(document.getElementById('root')).render(
+    <StrictMode>
+      <App />
+    </StrictMode>,
+  )
+
+
+  ================================================================================
+  FILE: src/styles/_variables.scss
+  ================================================================================
+
+  $primary-color: #4f46e5;
+  $primary-hover: #4338ca;
+
+  $text-color: #1f2937;
+  $label-color: #374151;
+  $border-color: #d1d5db;
+  $input-focus: #6366f1;
+
+  $white: #ffffff;
+
+  $bg-gradient-start: #eef2ff;
+  $bg-gradient-end: #e0e7ff;
+
+  $font-stack: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+
+
+  ================================================================================
+  FILE: src/styles/button.scss
+  ================================================================================
+
+  @use './variables' as *;
+  @use "sass:color";
+
+  .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: inherit;
+    line-height: 1.5;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background 0.2s ease,
+      transform 0.1s ease,
+      box-shadow 0.2s ease;
+    user-select: none;
+
+    &:active {
+      transform: scale(0.98);
+    }
+
+    &:focus-visible {
+      outline: 2px solid $primary-color;
+      outline-offset: 2px;
+    }
+  }
+
+  .button-primary {
+    width: 100%;
+    color: $white;
+
+    background: linear-gradient(135deg,
+        $primary-color,
+        color.adjust($primary-color, $lightness: 5%));
 
     box-shadow:
-      0 4px 6px -1px rgba($primary-color, 0.2);
+      0 4px 6px -1px rgba($primary-color, 0.3),
+      0 2px 4px -1px rgba($primary-color, 0.2);
+
+    &:hover {
+      background: linear-gradient(135deg,
+          $primary-hover,
+          $primary-color );
+
+      box-shadow:
+        0 10px 15px -3px rgba($primary-color, 0.3),
+        0 4px 6px -2px rgba($primary-color, 0.2);
+
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: translateY(0) scale(0.98);
+
+      box-shadow:
+        0 4px 6px -1px rgba($primary-color, 0.2);
+    }
   }
-}
 
 
-================================================================================
-FILE: src/styles/style.scss
-================================================================================
+  ================================================================================
+  FILE: src/styles/style.scss
+  ================================================================================
 
-@use './variables' as *;
+  @use './variables' as *;
 
-*,
-*::before,
-*::after {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+  *,
+  *::before,
+  *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 
-html,
-body,
-#root {
-  width: 100%;
-  // background-color: #161616;
-  // color: whitesmoke;
-  font-family: $font-stack;
-}
+  html,
+  body,
+  #root {
+    width: 100%;
+    // background-color: #161616;
+    // color: whitesmoke;
+    font-family: $font-stack;
+  }

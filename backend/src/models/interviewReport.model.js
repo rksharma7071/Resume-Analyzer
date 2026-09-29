@@ -1,52 +1,35 @@
 import mongoose from "mongoose";
 
-const technicalQuestionSchema = new mongoose.Schema(
-  {
-    question: { type: String, required: true },
-    intention: { type: String, required: true },
-    answer: { type: String, required: true }
-  },
-  { _id: false }
-);
-
-const behavioralQuestionSchema = new mongoose.Schema(
-  {
-    question: { type: String, required: true },
-    intention: { type: String, required: true },
-    answer: { type: String, required: true }
-  },
-  { _id: false }
-);
-
-const skillGapSchema = new mongoose.Schema(
-  {
-    skill: { type: String, required: true },
-    severity: { type: String, enum: ["low", "medium", "high"] }
-  },
-  { _id: false }
-);
-
-const preparationPlanSchema = new mongoose.Schema(
-  {
-    day: { type: Date, required: true },
-    focus: { type: String, required: true },
-    tasks: [{ type: String, required: true }]
-  },
+const questionSchema = new mongoose.Schema(
+  { question: String, intention: String, answer: String },
   { _id: false }
 );
 
 const interviewReportSchema = new mongoose.Schema(
   {
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
+    title: { type: String, required: true, trim: true },
     jobDescription: { type: String, required: true },
-    resume: { type: String },
-    selfDescription: { type: String },
+    resume: String,
+    selfDescription: String,
     matchScore: { type: Number, min: 0, max: 100 },
-    technicalQuestions: [technicalQuestionSchema],
-    behavioralQuestions: [behavioralQuestionSchema],
-    skillGaps: [skillGapSchema],
-    preparationPlan: [preparationPlanSchema],
-    user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    title: { type: String, required: true }
+    technicalQuestions: [questionSchema],
+    behavioralQuestions: [questionSchema],
+    skillGaps: [
+      {
+        _id: false,
+        skill: String,
+        severity: { type: String, enum: ["low", "medium", "high"] },
+      },
+    ],
+    preparationPlan: [
+      {
+        _id: false,
+        day: Number,
+        focus: String,
+        tasks: [String],
+      },
+    ],
   },
   { timestamps: true }
 );

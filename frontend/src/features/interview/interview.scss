@@ -1,14 +1,9 @@
 @use '../../styles/variables' as *;
 @use "sass:color";
 
-/* ═══════════════════════════════════════════════════
-   Local theme extensions (built on top of shared vars)
-   ═══════════════════════════════════════════════════ */
+/* Local theme tokens (built on the shared variables) */
 
 $surface: $white;
-$surface-subtle: #f9fafb;
-$surface-hover: color.adjust($bg-gradient-start, $lightness: 3%);
-
 $text-strong: $text-color;
 $text-body: $label-color;
 $text-muted: #6b7280;
@@ -20,25 +15,37 @@ $hairline-strong: $border-color;
 $accent: $primary-color;
 $accent-soft: rgba($primary-color, 0.08);
 $accent-soft-2: rgba($primary-color, 0.14);
-$accent-ring: rgba($primary-color, 0.2);
 
 $severity-high: #dc2626;
 $severity-medium: #d97706;
 $severity-low: #16a34a;
 
 $shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
-$shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.06),
-  0 2px 4px -1px rgba(0, 0, 0, 0.03);
-$shadow-lg: 0 10px 20px -8px rgba(0, 0, 0, 0.08),
-  0 4px 8px -4px rgba(0, 0, 0, 0.04);
+$shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.06), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
 
 $radius-sm: 0.5rem;
 $radius-md: 0.75rem;
-$radius-lg: 1rem;
 
-/* ═══════════════════════════════════════════════════
-   Shell
-   ═══════════════════════════════════════════════════ */
+/* Loading and error state */
+
+.interview-status {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  background: linear-gradient(135deg, $bg-gradient-start, $bg-gradient-end);
+  color: $text-body;
+  font-family: $font-stack;
+
+  a {
+    color: $accent;
+    font-weight: 500;
+  }
+}
+
+/* Shell */
 
 .interview-dashboard {
   display: grid;
@@ -50,17 +57,14 @@ $radius-lg: 1rem;
   font-size: 14px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-
-  *,
-  *::before,
-  *::after {
-    box-sizing: border-box;
-  }
 }
 
-/* ═══════════════════════════════════════════════════
-   Left sidebar
-   ═══════════════════════════════════════════════════ */
+.empty-text {
+  font-size: 0.875rem;
+  color: $text-muted;
+}
+
+/* Left sidebar */
 
 .dashboard-sidebar {
   padding: 2rem 1rem;
@@ -69,13 +73,12 @@ $radius-lg: 1rem;
   border-right: 1px solid $hairline;
 }
 
-.sidebar-label {
-  margin: 0 0 0.875rem 0.75rem;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: $text-dim;
+.report-heading {
+  margin: 1.25rem 0.75rem 1rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: $text-strong;
 }
 
 .sidebar-nav {
@@ -95,15 +98,13 @@ $radius-lg: 1rem;
   font-size: 0.875rem;
   font-weight: 500;
   text-align: left;
+  text-decoration: none;
   color: $text-muted;
   background: transparent;
   border: none;
   border-radius: $radius-sm;
   cursor: pointer;
-  transition:
-    color 0.18s ease,
-    background 0.18s ease,
-    transform 0.18s ease;
+  transition: color 0.18s ease, background 0.18s ease;
 
   .nav-icon {
     display: inline-flex;
@@ -112,12 +113,15 @@ $radius-lg: 1rem;
     flex-shrink: 0;
     width: 18px;
     height: 18px;
-    color: inherit;
   }
 
   &:hover {
     color: $text-strong;
     background: rgba($primary-color, 0.05);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $accent;
   }
 
   &.is-active {
@@ -139,9 +143,7 @@ $radius-lg: 1rem;
   }
 }
 
-/* ═══════════════════════════════════════════════════
-   Main content
-   ═══════════════════════════════════════════════════ */
+/* Main content */
 
 .dashboard-main {
   padding: 2rem 2.25rem;
@@ -149,7 +151,6 @@ $radius-lg: 1rem;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
 }
 
 .main-header {
@@ -160,7 +161,6 @@ $radius-lg: 1rem;
 }
 
 .main-title {
-  margin: 0;
   font-size: 1.375rem;
   font-weight: 700;
   letter-spacing: -0.015em;
@@ -179,9 +179,7 @@ $radius-lg: 1rem;
   border-radius: 999px;
 }
 
-/* ═══════════════════════════════════════════════════
-   Question accordion
-   ═══════════════════════════════════════════════════ */
+/* Question accordion */
 
 .question-list {
   display: flex;
@@ -196,24 +194,12 @@ $radius-lg: 1rem;
   border-radius: $radius-md;
   box-shadow: $shadow-sm;
   overflow: hidden;
-  transition:
-    box-shadow 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.2s ease;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 
-  &:hover {
-    border-color: rgba($primary-color, 0.25);
-    box-shadow: $shadow-md;
-    transform: translateY(-1px);
-  }
-
+  &:hover,
   &.is-open {
-    border-color: rgba($primary-color, 0.35);
+    border-color: rgba($primary-color, 0.3);
     box-shadow: $shadow-md;
-
-    &:hover {
-      transform: none;
-    }
   }
 }
 
@@ -230,6 +216,11 @@ $radius-lg: 1rem;
   background: transparent;
   border: none;
   cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid $accent;
+    outline-offset: -2px;
+  }
 }
 
 .q-badge {
@@ -245,15 +236,11 @@ $radius-lg: 1rem;
   color: $accent;
   background: $accent-soft;
   border-radius: $radius-sm;
-  letter-spacing: 0.02em;
-  transition: background 0.18s ease, color 0.18s ease;
 }
 
 .question-card.is-open .q-badge {
   color: $white;
-  background: linear-gradient(135deg,
-      $primary-color,
-      color.adjust($primary-color, $lightness: 5%));
+  background: linear-gradient(135deg, $primary-color, color.adjust($primary-color, $lightness: 5%));
 }
 
 .q-text {
@@ -270,20 +257,30 @@ $radius-lg: 1rem;
   transition: transform 0.22s ease, color 0.15s ease;
 }
 
-.question-card.is-open .chevron {
+.question-card.is-open .chevron,
+.roadmap-card.is-open .chevron {
   transform: rotate(180deg);
   color: $accent;
 }
 
 .question-body {
   padding: 0 1.125rem 1.125rem 4.25rem;
-  color: $text-muted;
+  color: $text-body;
   font-size: 0.875rem;
   line-height: 1.65;
+  max-width: 75ch;
   animation: slideDown 0.22s ease;
 
-  p {
-    margin: 0;
+  .q-label {
+    margin-top: 0.875rem;
+    margin-bottom: 0.125rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: $text-strong;
+
+    &:first-child {
+      margin-top: 0;
+    }
   }
 }
 
@@ -299,9 +296,7 @@ $radius-lg: 1rem;
   }
 }
 
-/* ═══════════════════════════════════════════════════
-   Right aside
-   ═══════════════════════════════════════════════════ */
+/* Right aside */
 
 .dashboard-aside {
   padding: 2rem 1.5rem;
@@ -311,15 +306,13 @@ $radius-lg: 1rem;
 }
 
 .aside-label {
-  margin: 0 0 1rem;
+  margin-bottom: 1rem;
   font-size: 0.6875rem;
   font-weight: 700;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: $text-dim;
+  color: $text-muted;
 }
-
-/* ─── Match score ─── */
 
 .match-section {
   display: flex;
@@ -359,7 +352,6 @@ $radius-lg: 1rem;
     stroke-width: 8;
     stroke-linecap: round;
     transition: stroke-dashoffset 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-    filter: drop-shadow(0 2px 6px rgba($severity-low, 0.35));
   }
 
   .score-value {
@@ -368,7 +360,6 @@ $radius-lg: 1rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: $text-strong;
     pointer-events: none;
   }
 
@@ -389,37 +380,38 @@ $radius-lg: 1rem;
 }
 
 .score-caption {
-  margin: 0;
   font-size: 0.875rem;
   font-weight: 600;
-  color: $severity-low;
+  color: $text-strong;
   text-align: center;
 }
-
-/* ─── Skill gaps ─── */
 
 .skill-gaps {
   .gap-list {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    padding: 0;
-    margin: 0;
     list-style: none;
   }
 
   .gap-item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
     padding: 0.625rem 0.875rem;
     font-size: 0.8125rem;
     font-weight: 500;
     line-height: 1.45;
     border-radius: $radius-sm;
     border: 1px solid transparent;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
 
-    &:hover {
-      transform: translateX(2px);
-    }
+  .gap-severity {
+    flex-shrink: 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: capitalize;
   }
 
   .gap-high {
@@ -429,21 +421,154 @@ $radius-lg: 1rem;
   }
 
   .gap-medium {
-    color: color.adjust($severity-medium, $lightness: -8%);
+    color: color.adjust($severity-medium, $lightness: -12%);
     background: rgba($severity-medium, 0.1);
     border-color: rgba($severity-medium, 0.3);
   }
 
   .gap-low {
-    color: color.adjust($severity-low, $lightness: -6%);
+    color: color.adjust($severity-low, $lightness: -8%);
     background: rgba($severity-low, 0.08);
     border-color: rgba($severity-low, 0.25);
   }
 }
 
-/* ═══════════════════════════════════════════════════
-   Responsive
-   ═══════════════════════════════════════════════════ */
+/* Preparation plan timeline */
+
+.roadmap {
+  width: 100%;
+  max-width: 780px;
+}
+
+.roadmap-list {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+}
+
+.roadmap-item {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 1rem;
+}
+
+.roadmap-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.node-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: $surface;
+  border: 2px solid $primary-color;
+  color: $accent;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  z-index: 1;
+}
+
+.node-line {
+  flex: 1;
+  width: 2px;
+  margin: 0.25rem 0;
+  background: linear-gradient(to bottom, rgba($primary-color, 0.25), rgba($primary-color, 0.05));
+}
+
+.roadmap-card {
+  margin-bottom: 0.75rem;
+  background: $surface;
+  border: 1px solid $hairline;
+  border-left: 3px solid $primary-color;
+  border-radius: $radius-md;
+  box-shadow: $shadow-sm;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+
+  &:hover,
+  &.is-open {
+    box-shadow: $shadow-md;
+  }
+}
+
+.roadmap-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 1rem 1.125rem;
+  font-family: inherit;
+  text-align: left;
+  color: inherit;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid $accent;
+    outline-offset: -2px;
+  }
+}
+
+.roadmap-heading {
+  flex: 1;
+  min-width: 0;
+}
+
+.roadmap-phase {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: $text-muted;
+}
+
+.roadmap-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: $text-strong;
+  line-height: 1.35;
+}
+
+.roadmap-task-count {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: $text-muted;
+}
+
+.roadmap-tasks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  padding: 1rem 1.125rem 1.125rem;
+  list-style: none;
+  border-top: 1px dashed $hairline;
+  animation: slideDown 0.22s ease;
+}
+
+.roadmap-task {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: $text-body;
+}
+
+.task-dot {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  margin-top: 0.55em;
+  border-radius: 50%;
+  background: $accent;
+  opacity: 0.65;
+}
+
+/* Responsive */
 
 @media (max-width: 1100px) {
   .interview-dashboard {
@@ -477,6 +602,10 @@ $radius-lg: 1rem;
     padding: 1.25rem 1rem;
     border-right: none;
     border-bottom: 1px solid $hairline;
+  }
+
+  .report-heading {
+    margin: 0.75rem 0.75rem;
   }
 
   .sidebar-nav {
@@ -530,392 +659,6 @@ $radius-lg: 1rem;
 
     .score-num {
       font-size: 2rem;
-    }
-  }
-}
-
-/* ═══════════════════════════════════════════════════
-   Roadmap
-   ═══════════════════════════════════════════════════ */
-
-.roadmap {
-  width: 100%;
-  max-width: 780px;
-}
-
-/* ─── Summary panel ─── */
-
-.roadmap-summary {
-  display: flex;
-  align-items: center;
-  gap: 1.25rem;
-  padding: 1.25rem 1.5rem;
-  margin-bottom: 2rem;
-  background: $surface;
-  border: 1px solid $hairline;
-  border-radius: $radius-lg;
-  box-shadow: $shadow-sm;
-}
-
-.summary-ring {
-  position: relative;
-  flex-shrink: 0;
-  width: 68px;
-  height: 68px;
-
-  svg {
-    width: 100%;
-    height: 100%;
-    transform: rotate(-90deg);
-  }
-
-  .summary-ring-bg {
-    fill: none;
-    stroke: rgba($primary-color, 0.1);
-    stroke-width: 4;
-  }
-
-  .summary-ring-fg {
-    fill: none;
-    stroke: $primary-color;
-    stroke-width: 4;
-    stroke-linecap: round;
-    transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .summary-ring-text {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.875rem;
-    font-weight: 700;
-    color: $text-strong;
-    letter-spacing: -0.02em;
-  }
-}
-
-.summary-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.summary-title {
-  margin: 0 0 0.125rem;
-  font-size: 0.9375rem;
-  font-weight: 700;
-  color: $text-strong;
-  letter-spacing: -0.01em;
-}
-
-.summary-sub {
-  margin: 0 0 0.75rem;
-  font-size: 0.8125rem;
-  color: $text-muted;
-}
-
-.progress-bar {
-  width: 100%;
-  height: 6px;
-  background: rgba($primary-color, 0.08);
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(135deg,
-      $primary-color,
-      color.adjust($primary-color, $lightness: 8%));
-  border-radius: 999px;
-  transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 0 10px rgba($primary-color, 0.3);
-}
-
-/* ─── Timeline list ─── */
-
-.roadmap-list {
-  display: flex;
-  flex-direction: column;
-  padding: 0;
-  margin: 0;
-  list-style: none;
-}
-
-.roadmap-item {
-  display: grid;
-  grid-template-columns: 44px 1fr;
-  gap: 1rem;
-  position: relative;
-}
-
-/* ─── Timeline node column ─── */
-
-.roadmap-node {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.node-circle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: $surface;
-  border: 2px solid $hairline-strong;
-  color: $text-dim;
-  font-size: 0.8125rem;
-  font-weight: 700;
-  transition:
-    border-color 0.2s ease,
-    background 0.2s ease,
-    color 0.2s ease,
-    box-shadow 0.2s ease;
-  z-index: 1;
-}
-
-.node-line {
-  flex: 1;
-  width: 2px;
-  margin: 0.25rem 0;
-  background: linear-gradient(to bottom,
-      rgba($primary-color, 0.2),
-      rgba($primary-color, 0.05));
-}
-
-/* Node — Done */
-.roadmap-item.status-done .node-circle {
-  color: $white;
-  border-color: $severity-low;
-  background: linear-gradient(135deg,
-      $severity-low,
-      color.adjust($severity-low, $lightness: -8%));
-  box-shadow: 0 4px 10px -2px rgba($severity-low, 0.35);
-}
-
-/* Node — In Progress */
-.roadmap-item.status-in-progress .node-circle {
-  border-color: $primary-color;
-  background: $surface;
-  box-shadow: 0 0 0 4px rgba($primary-color, 0.12);
-}
-
-.node-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: $primary-color;
-  animation: pulse 1.8s ease-in-out infinite;
-}
-
-@keyframes pulse {
-
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-
-  50% {
-    transform: scale(1.25);
-    opacity: 0.6;
-  }
-}
-
-/* Node — Pending */
-.roadmap-item.status-pending .node-circle {
-  border-color: $hairline-strong;
-  background: $surface-subtle;
-  color: $text-muted;
-}
-
-/* ─── Card ─── */
-
-.roadmap-card {
-  position: relative;
-  margin-bottom: 0.75rem;
-  background: $surface;
-  border: 1px solid $hairline;
-  border-left: 3px solid $hairline-strong;
-  border-radius: $radius-md;
-  box-shadow: $shadow-sm;
-  overflow: hidden;
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
-
-  &:hover {
-    box-shadow: $shadow-md;
-    transform: translateX(2px);
-  }
-}
-
-.roadmap-item.status-done .roadmap-card {
-  border-left-color: $severity-low;
-}
-
-.roadmap-item.status-in-progress .roadmap-card {
-  border-left-color: $primary-color;
-  box-shadow:
-    0 4px 12px -2px rgba($primary-color, 0.15),
-    0 2px 4px -1px rgba($primary-color, 0.08);
-}
-
-.roadmap-item.status-pending .roadmap-card {
-  border-left-color: $border-color;
-  opacity: 0.85;
-}
-
-.roadmap-card.is-open {
-  transform: none;
-
-  &:hover {
-    transform: none;
-  }
-}
-
-/* ─── Card header ─── */
-
-.roadmap-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  width: 100%;
-  padding: 1rem 1.125rem;
-  font-family: inherit;
-  text-align: left;
-  color: inherit;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-}
-
-.roadmap-heading {
-  flex: 1;
-  min-width: 0;
-}
-
-.roadmap-meta {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.25rem;
-}
-
-.roadmap-phase {
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: $text-dim;
-}
-
-.status-pill {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.125rem 0.5rem;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  border-radius: 999px;
-  border: 1px solid transparent;
-
-  &.status-done {
-    color: color.adjust($severity-low, $lightness: -8%);
-    background: rgba($severity-low, 0.1);
-    border-color: rgba($severity-low, 0.25);
-  }
-
-  &.status-in-progress {
-    color: $accent;
-    background: $accent-soft;
-    border-color: $accent-soft-2;
-  }
-
-  &.status-pending {
-    color: $text-muted;
-    background: rgba($border-color, 0.25);
-    border-color: $hairline;
-  }
-}
-
-.roadmap-title {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 600;
-  color: $text-strong;
-  line-height: 1.35;
-  letter-spacing: -0.005em;
-}
-
-.roadmap-task-count {
-  margin: 0.25rem 0 0;
-  font-size: 0.75rem;
-  color: $text-muted;
-}
-
-.roadmap-card.is-open .chevron {
-  transform: rotate(180deg);
-  color: $accent;
-}
-
-/* ─── Tasks ─── */
-
-.roadmap-tasks {
-  display: flex;
-  flex-direction: column;
-  gap: 0.625rem;
-  padding: 0 1.125rem 1.125rem 1.125rem;
-  margin: 0;
-  list-style: none;
-  border-top: 1px dashed $hairline;
-  padding-top: 1rem;
-  animation: slideDown 0.22s ease;
-}
-
-.roadmap-task {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.625rem;
-  font-size: 0.875rem;
-  line-height: 1.55;
-  color: $text-body;
-}
-
-.task-dot {
-  flex-shrink: 0;
-  width: 6px;
-  height: 6px;
-  margin-top: 0.55em;
-  border-radius: 50%;
-  background: $accent;
-  opacity: 0.65;
-}
-
-/* ─── Responsive ─── */
-
-@media (max-width: 720px) {
-  .roadmap-summary {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
-    padding: 1.125rem;
-  }
-
-  .summary-ring {
-    align-self: flex-start;
-    width: 60px;
-    height: 60px;
-
-    .summary-ring-text {
-      font-size: 0.8125rem;
     }
   }
 

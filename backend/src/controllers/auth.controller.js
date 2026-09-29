@@ -2,170 +2,120 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import BlacklistToken from "../models/blacklist.model.js";
 import { User } from "../models/user.model.js";
-import { clearCookieOptions, cookieOptions } from "../config/cookieOptions.js";
-// import { cookieOptions } from "../utils/cookieOptions.js";
+import {
+  cookieOptions,
+  clearCookieOptions,
+} from "../config/cookieOptions.js";
+
+const sendResponse = (res, status, message, data = {}) => {
+  return res.status(status).json({
+    success: true,
+    message,
+    ...data,
+  });
+};
+
+const sendError = (res, status, message) => {
+  return res.status(status).json({
+    success: false,
+    message,
+  });
+};
+
+const getPublicUser = (user) => ({
+  _id: user._id,
+  name: user.name,
+  email: user.email,
+});
+
+const generateToken = (userId) =>
+  jwt.sign({ _id: userId }, process.env.JWT_SECRET, {
+    expiresIn: "1d",
+  });
+
+const sendAuthResponse = (res, status, message, user) => {
+  res.cookie("token", generateToken(user._id), cookieOptions);
+
+  return sendResponse(res, status, message, {
+    user: getPublicUser(user),
+  });
+};
 
 export const register = async (req, res) => {
-  try {
-    const { name, email, password } = req.body ?? {};
+  const name = req.body?.name?.trim();
+  const email = req.body?.email?.trim().toLowerCase();
+  const password = req.body?.password;
 
-    if (typeof name !== "string" || typeof email !== "string" || typeof password !== "string") {
-      return res.status(400).json({ success: false, message: "Name, email and password must be strings." });
-    }
-
-    const normalizedName = name.trim();
-    const normalizedEmail = email.trim().toLowerCase();
-
-    if (!normalizedName || !normalizedEmail || !password.trim()) {
-      return res.status(400).json({ success: false, message: "Name, email and password are required." });
-    }
-
-    if (normalizedName.length > 100) {
-      return res.status(400).json({ success: false, message: "Name must not exceed 100 characters." });
-    }
-
-    if (
-      normalizedEmail.length > 254 ||
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)
-    ) {
-      return res.status(400).json({ success: false, message: "Please provide a valid email address." });
-    }
-
-    if (password.length < 8 || password.length > 128) {
-      return res.status(400).json({ success: false, message: "Password must contain between 8 and 128 characters." });
-    }
-
-    if (!process.env.JWT_SECRET) {
-      console.error("JWT_SECRET is not configured.");
-
-      return res.status(500).json({ success: false, message: "Internal server error." });
-    }
-
-    const existingUser = await User.findOne({ email: normalizedEmail });
-
-    if (existingUser) {
-      return res.status(409).json({ success: false, message: "An account with this email already exists." });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const user = await User.create({
-      name: normalizedName,
-      email: normalizedEmail,
-      password: hashedPassword,
-    });
-
-    const token = jwt.sign(
-      { _id: user._id, email: user.email },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" }
-    );
-
-    res.cookie("token", token, cookieOptions);
-
-    return res.status(201).json({
-      success: true,
-      message: "User registered successfully.",
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-      },
-    });
-  } catch (error) {
-    if (error.code === 11000) {
-      return res.status(409).json({ success: false, message: "An account with this email already exists." });
-    }
-    console.error("Register error:", error.message);
-    return res.status(500).json({ success: false, message: "Failed to register user." });
+  if (!name || !email || !password) {
+    return sendError(res, 400, "Name, email and password are required.");
   }
+
+  if (name.length > 100) {
+    return sendError(res, 400, "Name must not exceed 100 characters.");
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
+    return sendError(res, 400, "Please provide a valid email address.");
+  }
+
+  if (typeof password !== "string" || password.length < 8 || password.length > 128) {
+    return sendError(res, 400, "Password must contain between 8 and 128 characters.");
+  }
+
+  if (await User.exists({ email })) {
+    return sendError(res, 409, "An account with this email already exists.");
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  const user = await User.create({
+    name,
+    email,
+    password: hashedPassword,
+  });
+
+  return sendAuthResponse(res, 201, "User registered successfully.", user);
 };
 
 export const login = async (req, res) => {
-  try {
-    const { email, password } = req.body ?? {};
+  const email = req.body?.email?.trim().toLowerCase();
+  const password = req.body?.password;
 
-    if (typeof email !== "string" || typeof password !== "string" || !email.trim() || !password) {
-      return res.status(400).json({ success: false, message: "Please provide a valid email and password." });
-    }
-
-    if (!process.env.JWT_SECRET) {
-      console.error("JWT_SECRET is not configured.");
-      return res.status(500).json({ success: false, message: "Internal server error." });
-    }
-
-    const normalizedEmail = email.trim().toLowerCase();
-
-    const user = await User.findOne({ email: normalizedEmail });
-
-    if (!user) {
-      return res.status(401).json({ success: false, message: "Invalid email or password." });
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordValid) {
-      return res.status(401).json({ success: false, message: "Invalid email or password." });
-    }
-
-    const token = jwt.sign(
-      { _id: user._id, email: user.email },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" }
-    );
-
-    res.cookie("token", token, cookieOptions);
-
-    return res.status(200).json({
-      success: true,
-      message: "User logged in successfully.",
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-      },
-    });
-  } catch (error) {
-    console.error("Login error:", error.message);
-    return res.status(500).json({ success: false, message: "Failed to log in." });
+  if (!email || typeof password !== "string" || !password) {
+    return sendError(res, 400, "Please provide a valid email and password.");
   }
+
+  const user = await User.findOne({ email }).select("+password");
+
+  if (!user || !(await bcrypt.compare(password, user.password))) {
+    return sendError(res, 401, "Invalid email or password.");
+  }
+
+  return sendAuthResponse(res, 200, "User logged in successfully.", user);
 };
 
 export const logout = async (req, res) => {
-  try {
-    const token = req.cookies?.token;
-    if (token) {
-      await BlacklistToken.create({ token });
+  const token = req.cookies?.token;
+
+  res.clearCookie("token", clearCookieOptions);
+
+  if (token) {
+    const decoded = jwt.decode(token);
+
+    if (decoded?.exp) {
+      await BlacklistToken.updateOne(
+        { token },
+        { $setOnInsert: { expiresAt: new Date(decoded.exp * 1000) } },
+        { upsert: true }
+      );
     }
-
-    res.clearCookie("token", clearCookieOptions);
-
-    return res.status(200).json({ success: true, message: "User logged out successfully." });
-  } catch (error) {
-    console.log("Login Error: ", error);
-    return res.status(400).json({ message: error.message || "Server Error" })
   }
-}
 
-export const getMe = async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id).select("-password");
+  return sendResponse(res, 200, "Logged out successfully.");
+};
 
-    if (!user) {
-      return res.status(404).json({ success: false, message: "User not found." });
-    }
-
-    return res.status(200).json({
-      success: true,
-      message: "User details fetched successfully.",
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-      },
-    });
-  } catch (error) {
-    console.error("Get profile error:", error.message);
-    return res.status(500).json({ success: false, message: "Failed to fetch user details." });
-  }
+export const getMe = (req, res) => {
+  return sendResponse(res, 200, "User details fetched successfully.", {
+    user: getPublicUser(req.user),
+  });
 };

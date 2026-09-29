@@ -1,46 +1,24 @@
-import React, { useState } from 'react';
-import "../auth-form.scss";
-import "../../../styles/button.scss";
-import { Link, useNavigate } from 'react-router';
-import { useAuth } from '../hooks/useAuth.jsx';
+import { Link } from "react-router";
+import AuthForm from "../components/AuthForm.jsx";
+import { useAuth } from "../hooks/useAuth.jsx";
+
+const FIELDS = [
+  { name: "email", label: "Email", type: "email", autoComplete: "email" },
+  { name: "password", label: "Password", type: "password", autoComplete: "current-password" },
+];
 
 const Login = () => {
-
-  const { loading, handleLogin } = useAuth();
-  const navigate = useNavigate();
-
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    await handleLogin({ email, password })
-    navigate('/')
-  }
-
-  if (loading) {    
-    return (<main><h1>Loading...</h1></main>)
-  }
+  const { handleLogin } = useAuth();
 
   return (
-    <main>
-      <div className="form-container">
-        <h1>Login</h1>
-        <form onSubmit={handleSubmit}>
-          <div className="input-group">
-            <label htmlFor="email">Email</label>
-            <input type="email" onChange={(e) => { setEmail(e.target.value) }} name="email" id="email" />
-          </div>
-          <div className="input-group">
-            <label htmlFor="password">Password</label>
-            <input type="password" onChange={(e) => { setPassword(e.target.value) }} name="password" id="password" />
-          </div>
-          <button className='button button-primary'>Login</button>
-        </form>
-        <p>Don't have an account? <Link to={"/register"}>Register</Link></p>
-      </div>
-    </main>
-  )
-}
+    <AuthForm
+      title="Log in"
+      fields={FIELDS}
+      submitLabel="Log in"
+      onSubmit={handleLogin}
+      footer={<>Don't have an account? <Link to="/register">Create one</Link></>}
+    />
+  );
+};
 
-export default Login
+export default Login;
